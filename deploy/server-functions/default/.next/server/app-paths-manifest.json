@@ -1,0 +1,20 @@
+{
+  "/[category]/page": "app/[category]/page.js",
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/admin/login/page": "app/admin/login/page.js",
+  "/admin/migrate/page": "app/admin/migrate/page.js",
+  "/admin/notas/nueva/page": "app/admin/notas/nueva/page.js",
+  "/admin/notas/page": "app/admin/notas/page.js",
+  "/admin/page": "app/admin/page.js",
+  "/admin/revistas/nueva/page": "app/admin/revistas/nueva/page.js",
+  "/api/migrate/route": "app/api/migrate/route.js",
+  "/articulo/[id]/page": "app/articulo/[id]/page.js",
+  "/buscar/page": "app/buscar/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/page": "app/page.js",
+  "/revistas/[id]/page": "app/revistas/[id]/page.js",
+  "/revistas/page": "app/revistas/page.js",
+  "/robots.txt/route": "app/robots.txt/route.js",
+  "/sitemap.xml/route": "app/sitemap.xml/route.js"
+}

@@ -1,0 +1,20 @@
+{
+  "/[category]/page": "/[category]",
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/admin/login/page": "/admin/login",
+  "/admin/migrate/page": "/admin/migrate",
+  "/admin/notas/nueva/page": "/admin/notas/nueva",
+  "/admin/notas/page": "/admin/notas",
+  "/admin/page": "/admin",
+  "/admin/revistas/nueva/page": "/admin/revistas/nueva",
+  "/api/migrate/route": "/api/migrate",
+  "/articulo/[id]/page": "/articulo/[id]",
+  "/buscar/page": "/buscar",
+  "/favicon.ico/route": "/favicon.ico",
+  "/page": "/",
+  "/revistas/[id]/page": "/revistas/[id]",
+  "/revistas/page": "/revistas",
+  "/robots.txt/route": "/robots.txt",
+  "/sitemap.xml/route": "/sitemap.xml"
+}

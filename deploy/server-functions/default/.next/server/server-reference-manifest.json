@@ -1,0 +1,206 @@
+{
+  "node": {
+    "00699f88d04450b6b6152f527991459dd0e00e944c": {
+      "workers": {
+        "app/admin/login/page": {
+          "moduleId": 91191,
+          "async": false,
+          "exportedName": "logoutAdmin",
+          "filename": "src/app/admin/actions.ts"
+        },
+        "app/admin/migrate/page": {
+          "moduleId": 75611,
+          "async": false,
+          "exportedName": "logoutAdmin",
+          "filename": "src/app/admin/actions.ts"
+        },
+        "app/admin/notas/nueva/page": {
+          "moduleId": 41772,
+          "async": false,
+          "exportedName": "logoutAdmin",
+          "filename": "src/app/admin/actions.ts"
+        },
+        "app/admin/notas/page": {
+          "moduleId": 44035,
+          "async": false,
+          "exportedName": "logoutAdmin",
+          "filename": "src/app/admin/actions.ts"
+        },
+        "app/admin/page": {
+          "moduleId": 72019,
+          "async": false,
+          "exportedName": "logoutAdmin",
+          "filename": "src/app/admin/actions.ts"
+        },
+        "app/admin/revistas/nueva/page": {
+          "moduleId": 41590,
+          "async": false,
+          "exportedName": "logoutAdmin",
+          "filename": "src/app/admin/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/login/page": "rsc",
+        "app/admin/migrate/page": "rsc",
+        "app/admin/notas/nueva/page": "rsc",
+        "app/admin/notas/page": "rsc",
+        "app/admin/page": "rsc",
+        "app/admin/revistas/nueva/page": "rsc"
+      },
+      "filename": "src/app/admin/actions.ts",
+      "exportedName": "logoutAdmin"
+    },
+    "40090eaa3c574ec6dc1eb5d3a2d582b853924b82af": {
+      "workers": {
+        "app/admin/login/page": {
+          "moduleId": 91191,
+          "async": false,
+          "exportedName": "uploadNews",
+          "filename": "src/app/admin/actions.ts"
+        },
+        "app/admin/migrate/page": {
+          "moduleId": 75611,
+          "async": false,
+          "exportedName": "uploadNews",
+          "filename": "src/app/admin/actions.ts"
+        },
+        "app/admin/notas/nueva/page": {
+          "moduleId": 41772,
+          "async": false,
+          "exportedName": "uploadNews",
+          "filename": "src/app/admin/actions.ts"
+        },
+        "app/admin/notas/page": {
+          "moduleId": 44035,
+          "async": false,
+          "exportedName": "uploadNews",
+          "filename": "src/app/admin/actions.ts"
+        },
+        "app/admin/page": {
+          "moduleId": 72019,
+          "async": false,
+          "exportedName": "uploadNews",
+          "filename": "src/app/admin/actions.ts"
+        },
+        "app/admin/revistas/nueva/page": {
+          "moduleId": 41590,
+          "async": false,
+          "exportedName": "uploadNews",
+          "filename": "src/app/admin/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/login/page": "rsc",
+        "app/admin/migrate/page": "rsc",
+        "app/admin/notas/nueva/page": "action-browser",
+        "app/admin/notas/page": "rsc",
+        "app/admin/page": "rsc",
+        "app/admin/revistas/nueva/page": "rsc"
+      },
+      "filename": "src/app/admin/actions.ts",
+      "exportedName": "uploadNews"
+    },
+    "40e0fb5627093724dfc07e7874c12e954e822a1d6e": {
+      "workers": {
+        "app/admin/login/page": {
+          "moduleId": 91191,
+          "async": false,
+          "exportedName": "loginAdmin",
+          "filename": "src/app/admin/actions.ts"
+        },
+        "app/admin/migrate/page": {
+          "moduleId": 75611,
+          "async": false,
+          "exportedName": "loginAdmin",
+          "filename": "src/app/admin/actions.ts"
+        },
+        "app/admin/notas/nueva/page": {
+          "moduleId": 41772,
+          "async": false,
+          "exportedName": "loginAdmin",
+          "filename": "src/app/admin/actions.ts"
+        },
+        "app/admin/notas/page": {
+          "moduleId": 44035,
+          "async": false,
+          "exportedName": "loginAdmin",
+          "filename": "src/app/admin/actions.ts"
+        },
+        "app/admin/page": {
+          "moduleId": 72019,
+          "async": false,
+          "exportedName": "loginAdmin",
+          "filename": "src/app/admin/actions.ts"
+        },
+        "app/admin/revistas/nueva/page": {
+          "moduleId": 41590,
+          "async": false,
+          "exportedName": "loginAdmin",
+          "filename": "src/app/admin/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/login/page": "rsc",
+        "app/admin/migrate/page": "rsc",
+        "app/admin/notas/nueva/page": "rsc",
+        "app/admin/notas/page": "rsc",
+        "app/admin/page": "rsc",
+        "app/admin/revistas/nueva/page": "rsc"
+      },
+      "filename": "src/app/admin/actions.ts",
+      "exportedName": "loginAdmin"
+    },
+    "40ed3f7971850279737e9e11cf3cb1e7f2ade41c21": {
+      "workers": {
+        "app/admin/login/page": {
+          "moduleId": 91191,
+          "async": false,
+          "exportedName": "uploadMagazine",
+          "filename": "src/app/admin/actions.ts"
+        },
+        "app/admin/migrate/page": {
+          "moduleId": 75611,
+          "async": false,
+          "exportedName": "uploadMagazine",
+          "filename": "src/app/admin/actions.ts"
+        },
+        "app/admin/notas/nueva/page": {
+          "moduleId": 41772,
+          "async": false,
+          "exportedName": "uploadMagazine",
+          "filename": "src/app/admin/actions.ts"
+        },
+        "app/admin/notas/page": {
+          "moduleId": 44035,
+          "async": false,
+          "exportedName": "uploadMagazine",
+          "filename": "src/app/admin/actions.ts"
+        },
+        "app/admin/page": {
+          "moduleId": 72019,
+          "async": false,
+          "exportedName": "uploadMagazine",
+          "filename": "src/app/admin/actions.ts"
+        },
+        "app/admin/revistas/nueva/page": {
+          "moduleId": 41590,
+          "async": false,
+          "exportedName": "uploadMagazine",
+          "filename": "src/app/admin/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/login/page": "rsc",
+        "app/admin/migrate/page": "rsc",
+        "app/admin/notas/nueva/page": "rsc",
+        "app/admin/notas/page": "rsc",
+        "app/admin/page": "rsc",
+        "app/admin/revistas/nueva/page": "action-browser"
+      },
+      "filename": "src/app/admin/actions.ts",
+      "exportedName": "uploadMagazine"
+    }
+  },
+  "edge": {},
+  "encryptionKey": "ixzWZrCDw46RwSUTi7VLuiBY6Qyu9Px/bXmLU2atQOo="
+}

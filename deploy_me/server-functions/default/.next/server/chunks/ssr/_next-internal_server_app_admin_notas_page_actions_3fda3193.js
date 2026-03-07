@@ -1,0 +1,3 @@
+module.exports=[44035,a=>{"use strict";var b=a.i(12406);a.s([],58730),a.i(58730),a.s(["00699f88d04450b6b6152f527991459dd0e00e944c",()=>b.logoutAdmin,"40090eaa3c574ec6dc1eb5d3a2d582b853924b82af",()=>b.uploadNews,"40e0fb5627093724dfc07e7874c12e954e822a1d6e",()=>b.loginAdmin,"40ed3f7971850279737e9e11cf3cb1e7f2ade41c21",()=>b.uploadMagazine],44035)}];
+
+//# sourceMappingURL=_next-internal_server_app_admin_notas_page_actions_3fda3193.js.map
