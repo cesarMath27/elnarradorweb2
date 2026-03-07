@@ -15,7 +15,6 @@
     "@supabase/ssr": "^0.9.0",
     "@supabase/supabase-js": "^2.98.0",
     "esbuild": "^0.27.3",
-    "lightningcss": "^1.31.1",
     "next": "15.5.10",
     "react": "18.3.1",
     "react-dom": "18.3.1"
@@ -28,6 +27,7 @@
     "@types/react-dom": "^18",
     "eslint": "^9",
     "eslint-config-next": "15.5.10",
+    "lightningcss": "^1.31.1",
     "tailwindcss": "^4",
     "typescript": "^5",
     "wrangler": "^4.70.0"
