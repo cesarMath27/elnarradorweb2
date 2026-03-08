@@ -1,5 +1,14 @@
 import { createClient } from "./server";
 
+export type Author = {
+  id: string;
+  name: string;
+  bio: string | null;
+  avatar_url: string | null;
+  email: string | null;
+  created_at: string;
+};
+
 export type NewsArticle = {
   id: string;
   source: "supabase" | "wordpress";
@@ -17,6 +26,7 @@ export type NewsArticle = {
   is_featured: boolean;
   is_breaking: boolean;
   source_url: string;
+  authors?: Author[];
 };
 
 export async function getLatestNews(limit = 20, offset = 0) {
@@ -130,4 +140,34 @@ export async function incrementViewCount(id: string) {
       .update({ view_count: 1 })
       .eq("id", id);
   }
+}
+
+/* ───── Authors ───── */
+
+export async function getAuthors() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("authors")
+    .select("*")
+    .order("name", { ascending: true });
+
+  if (error) throw error;
+  return data as Author[];
+}
+
+export async function getAuthorsByNewsId(newsId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("news_authors")
+    .select("author_id, authors(*)")
+    .eq("news_id", newsId);
+
+  if (error) throw error;
+  return (data ?? []).map((row: { authors: Author }) => row.authors);
+}
+
+export async function getNewsWithAuthors(newsId: string) {
+  const article = await getNewsById(newsId);
+  const authors = await getAuthorsByNewsId(newsId);
+  return { ...article, authors };
 }
