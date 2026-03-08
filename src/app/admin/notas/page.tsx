@@ -71,21 +71,21 @@ export default function NotasListPage() {
 
     return (
         <div>
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Todas las Notas</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Todas las Notas</h1>
                     <p className="text-gray-500 text-sm mt-1">{posts.length} artículos en total</p>
                 </div>
                 <Link
                     href="/admin/notas/nueva"
-                    className="bg-gray-900 hover:bg-gray-800 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors shadow-sm"
+                    className="bg-gray-900 hover:bg-gray-800 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors shadow-sm text-center"
                 >
                     + Nueva Nota
                 </Link>
             </div>
 
             {/* Filter tabs */}
-            <div className="flex gap-2 mb-6">
+            <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
                 {[
                     { key: "all" as const, label: "Todas", count: posts.length },
                     { key: "featured" as const, label: "⭐ Destacadas", count: posts.filter((p) => p.is_featured).length },
@@ -94,7 +94,7 @@ export default function NotasListPage() {
                     <button
                         key={tab.key}
                         onClick={() => setFilter(tab.key)}
-                        className={`px-4 py-2 text-sm rounded-lg font-medium transition-colors ${
+                        className={`px-4 py-2 text-sm rounded-lg font-medium transition-colors whitespace-nowrap ${
                             filter === tab.key
                                 ? "bg-gray-900 text-white"
                                 : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
@@ -115,116 +115,80 @@ export default function NotasListPage() {
                     </Link>
                 </div>
             ) : (
-                <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-                    <table className="w-full text-sm">
-                        <thead>
-                            <tr className="border-b border-gray-100 bg-gray-50">
-                                <th className="text-left px-4 py-3 text-gray-500 font-semibold">
-                                    Título
-                                </th>
-                                <th className="text-left px-4 py-3 text-gray-500 font-semibold w-28">
-                                    Categoría
-                                </th>
-                                <th className="text-center px-4 py-3 text-gray-500 font-semibold w-20">
-                                    Dest.
-                                </th>
-                                <th className="text-center px-4 py-3 text-gray-500 font-semibold w-20">
-                                    Últ. H
-                                </th>
-                                <th className="text-center px-4 py-3 text-gray-500 font-semibold w-20">
-                                    Fuente
-                                </th>
-                                <th className="text-center px-4 py-3 text-gray-500 font-semibold w-20">
-                                    Vistas
-                                </th>
-                                <th className="text-right px-4 py-3 text-gray-500 font-semibold w-24">
-                                    Acciones
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filtered.map((post) => (
-                                <tr
-                                    key={post.id}
-                                    className="border-b border-gray-50 hover:bg-blue-50/50 transition-colors"
-                                >
-                                    <td className="px-4 py-3">
-                                        <p className="text-gray-900 font-medium line-clamp-1">
-                                            {post.title}
-                                        </p>
-                                        <p className="text-gray-400 text-xs mt-0.5">
-                                            {new Date(post.published_at).toLocaleDateString(
-                                                "es-MX",
-                                                {
-                                                    year: "numeric",
-                                                    month: "short",
-                                                    day: "numeric",
-                                                }
-                                            )}
-                                        </p>
-                                    </td>
-                                    <td className="px-4 py-3">
-                                        <span className="text-xs font-semibold px-2 py-1 rounded-full bg-amber-100 text-amber-800">
-                                            {post.category_name}
-                                        </span>
-                                    </td>
-                                    <td className="px-4 py-3 text-center">
-                                        <button
-                                            onClick={() =>
-                                                toggleFeatured(post.id, post.is_featured)
-                                            }
-                                            className={`w-7 h-7 rounded-lg cursor-pointer text-sm transition-colors ${
-                                                post.is_featured
-                                                    ? "bg-amber-500 text-white shadow-sm"
-                                                    : "bg-gray-100 text-gray-400 hover:bg-gray-200"
-                                            }`}
-                                            title={post.is_featured ? "Quitar destacada" : "Marcar como destacada"}
-                                        >
-                                            ⭐
-                                        </button>
-                                    </td>
-                                    <td className="px-4 py-3 text-center">
-                                        <button
-                                            onClick={() =>
-                                                toggleBreaking(post.id, post.is_breaking)
-                                            }
-                                            className={`w-7 h-7 rounded-lg cursor-pointer text-sm transition-colors ${
-                                                post.is_breaking
-                                                    ? "bg-red-600 text-white shadow-sm"
-                                                    : "bg-gray-100 text-gray-400 hover:bg-gray-200"
-                                            }`}
-                                            title={post.is_breaking ? "Quitar última hora" : "Marcar como última hora"}
-                                        >
-                                            🔴
-                                        </button>
-                                    </td>
-                                    <td className="px-4 py-3 text-center">
-                                        <span
-                                            className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                                                post.source === "wordpress"
-                                                    ? "bg-blue-100 text-blue-700"
-                                                    : "bg-green-100 text-green-700"
-                                            }`}
-                                        >
-                                            {post.source === "wordpress" ? "WP" : "SB"}
-                                        </span>
-                                    </td>
-                                    <td className="px-4 py-3 text-center text-gray-500">
-                                        {post.view_count || 0}
-                                    </td>
-                                    <td className="px-4 py-3 text-right">
-                                        <button
-                                            onClick={() => deletePost(post.id)}
-                                            className="text-red-400 hover:text-red-600 text-xs font-medium transition-colors cursor-pointer hover:underline"
-                                        >
-                                            Eliminar
-                                        </button>
-                                    </td>
+                <>
+                    {/* Desktop table */}
+                    <div className="hidden md:block bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                        <table className="w-full text-sm">
+                            <thead>
+                                <tr className="border-b border-gray-100 bg-gray-50">
+                                    <th className="text-left px-4 py-3 text-gray-500 font-semibold">Título</th>
+                                    <th className="text-left px-4 py-3 text-gray-500 font-semibold w-28">Categoría</th>
+                                    <th className="text-center px-4 py-3 text-gray-500 font-semibold w-20">Dest.</th>
+                                    <th className="text-center px-4 py-3 text-gray-500 font-semibold w-20">Últ. H</th>
+                                    <th className="text-center px-4 py-3 text-gray-500 font-semibold w-20">Fuente</th>
+                                    <th className="text-center px-4 py-3 text-gray-500 font-semibold w-20">Vistas</th>
+                                    <th className="text-right px-4 py-3 text-gray-500 font-semibold w-24">Acciones</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                {filtered.map((post) => (
+                                    <tr key={post.id} className="border-b border-gray-50 hover:bg-blue-50/50 transition-colors">
+                                        <td className="px-4 py-3">
+                                            <p className="text-gray-900 font-medium line-clamp-1">{post.title}</p>
+                                            <p className="text-gray-400 text-xs mt-0.5">
+                                                {new Date(post.published_at).toLocaleDateString("es-MX", { year: "numeric", month: "short", day: "numeric" })}
+                                            </p>
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            <span className="text-xs font-semibold px-2 py-1 rounded-full bg-amber-100 text-amber-800">{post.category_name}</span>
+                                        </td>
+                                        <td className="px-4 py-3 text-center">
+                                            <button onClick={() => toggleFeatured(post.id, post.is_featured)} className={`w-7 h-7 rounded-lg cursor-pointer text-sm transition-colors ${post.is_featured ? "bg-amber-500 text-white shadow-sm" : "bg-gray-100 text-gray-400 hover:bg-gray-200"}`} title={post.is_featured ? "Quitar destacada" : "Marcar como destacada"}>⭐</button>
+                                        </td>
+                                        <td className="px-4 py-3 text-center">
+                                            <button onClick={() => toggleBreaking(post.id, post.is_breaking)} className={`w-7 h-7 rounded-lg cursor-pointer text-sm transition-colors ${post.is_breaking ? "bg-red-600 text-white shadow-sm" : "bg-gray-100 text-gray-400 hover:bg-gray-200"}`} title={post.is_breaking ? "Quitar última hora" : "Marcar como última hora"}>🔴</button>
+                                        </td>
+                                        <td className="px-4 py-3 text-center">
+                                            <span className={`text-xs font-semibold px-2 py-1 rounded-full ${post.source === "wordpress" ? "bg-blue-100 text-blue-700" : "bg-green-100 text-green-700"}`}>
+                                                {post.source === "wordpress" ? "WP" : "SB"}
+                                            </span>
+                                        </td>
+                                        <td className="px-4 py-3 text-center text-gray-500">{post.view_count || 0}</td>
+                                        <td className="px-4 py-3 text-right">
+                                            <button onClick={() => deletePost(post.id)} className="text-red-400 hover:text-red-600 text-xs font-medium transition-colors cursor-pointer hover:underline">Eliminar</button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Mobile cards */}
+                    <div className="md:hidden flex flex-col gap-3">
+                        {filtered.map((post) => (
+                            <div key={post.id} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                                <div className="flex items-start justify-between gap-2 mb-2">
+                                    <p className="text-sm font-medium text-gray-900 line-clamp-2 flex-1">{post.title}</p>
+                                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 ${post.source === "wordpress" ? "bg-blue-100 text-blue-700" : "bg-green-100 text-green-700"}`}>
+                                        {post.source === "wordpress" ? "WP" : "SB"}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-2 flex-wrap text-xs text-gray-400 mb-3">
+                                    <span className="font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">{post.category_name}</span>
+                                    <span>{new Date(post.published_at).toLocaleDateString("es-MX", { month: "short", day: "numeric", year: "numeric" })}</span>
+                                    <span>👁 {post.view_count || 0}</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <div className="flex gap-2">
+                                        <button onClick={() => toggleFeatured(post.id, post.is_featured)} className={`w-8 h-8 rounded-lg cursor-pointer text-sm transition-colors ${post.is_featured ? "bg-amber-500 text-white shadow-sm" : "bg-gray-100 text-gray-400"}`}>⭐</button>
+                                        <button onClick={() => toggleBreaking(post.id, post.is_breaking)} className={`w-8 h-8 rounded-lg cursor-pointer text-sm transition-colors ${post.is_breaking ? "bg-red-600 text-white shadow-sm" : "bg-gray-100 text-gray-400"}`}>🔴</button>
+                                    </div>
+                                    <button onClick={() => deletePost(post.id)} className="text-red-400 hover:text-red-600 text-xs font-medium transition-colors cursor-pointer">Eliminar</button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </>
             )}
         </div>
     );
