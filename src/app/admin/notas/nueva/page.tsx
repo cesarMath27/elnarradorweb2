@@ -252,7 +252,7 @@ export default function NuevaNotaPage() {
             )}
 
             {/* ═══════ EDITOR TAB ═══════ */}
-            {tab === "editor" && (
+            <div style={{ display: tab === "editor" ? "block" : "none" }}>
                 <div className="flex gap-6">
                     {/* LEFT — form */}
                     <div className="flex-1 min-w-0 space-y-5">
@@ -463,10 +463,10 @@ export default function NuevaNotaPage() {
                         </div>
                     </div>
                 </div>
-            )}
+            </div>
 
             {/* ═══════ PREVIEW TAB ═══════ */}
-            {tab === "preview" && (
+            <div style={{ display: tab === "preview" ? "block" : "none" }}>
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     {/* Preview header bar */}
                     <div className="bg-gray-50 border-b border-gray-200 px-5 py-3 flex items-center justify-between">
@@ -592,7 +592,7 @@ export default function NuevaNotaPage() {
                         </div>
                     </div>
                 </div>
-            )}
+            </div>
         </div>
     );
 }
