@@ -38,36 +38,36 @@ export default async function AdminDashboard() {
 
     return (
         <div>
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-                <p className="text-gray-500 mt-1">Bienvenido al panel de administración de El Narrador de México</p>
+            <div className="mb-6 md:mb-8">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Dashboard</h1>
+                <p className="text-gray-500 mt-1 text-sm sm:text-base">Bienvenido al panel de administración</p>
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
                 {stats.map((stat) => (
                     <div
                         key={stat.label}
-                        className={`p-5 rounded-xl border shadow-sm ${stat.color}`}
+                        className={`p-3 sm:p-5 rounded-xl border shadow-sm ${stat.color}`}
                     >
-                        <div className="flex items-center justify-between mb-2">
-                            <span className="text-2xl">{stat.icon}</span>
+                        <div className="flex items-center justify-between mb-1 sm:mb-2">
+                            <span className="text-xl sm:text-2xl">{stat.icon}</span>
                         </div>
-                        <p className="text-3xl font-bold">{stat.value}</p>
-                        <p className="text-sm opacity-70 mt-1">{stat.label}</p>
+                        <p className="text-2xl sm:text-3xl font-bold">{stat.value}</p>
+                        <p className="text-xs sm:text-sm opacity-70 mt-1">{stat.label}</p>
                     </div>
                 ))}
             </div>
 
             {/* Quick Actions */}
-            <div className="mb-8">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Acciones rápidas</h2>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="mb-6 md:mb-8">
+                <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Acciones rápidas</h2>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
                     {quickActions.map((action) => (
                         <Link
                             key={action.label}
                             href={action.href}
-                            className={`p-4 rounded-xl font-medium transition-all duration-200 shadow-sm ${action.bg}`}
+                            className={`p-3 sm:p-4 rounded-xl font-medium transition-all duration-200 shadow-sm ${action.bg}`}
                         >
                             <span className="text-2xl block mb-2">{action.icon}</span>
                             <span className="font-semibold text-sm">{action.label}</span>
