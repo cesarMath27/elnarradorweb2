@@ -212,13 +212,13 @@ export default function NuevaNotaPage() {
 
     return (
         <div className="max-w-[1200px] mx-auto">
-            <div className="flex items-center justify-between mb-6">
+            <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900">Publicar Nueva Nota</h1>
                     <p className="text-gray-500 mt-1 text-sm">Redacta, analiza SEO y previsualiza antes de publicar</p>
                 </div>
                 {/* Tab switcher */}
-                <div className="flex bg-gray-100 rounded-lg p-1">
+                <div className="flex w-full rounded-lg bg-gray-100 p-1 sm:w-auto">
                     <button
                         onClick={() => setTab("editor")}
                         className={`px-4 py-2 text-sm font-semibold rounded-md transition-colors ${tab === "editor" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
@@ -253,7 +253,7 @@ export default function NuevaNotaPage() {
 
             {/* ═══════ EDITOR TAB ═══════ */}
             {tab === "editor" && (
-                <div className="flex gap-6">
+                <div className="flex flex-col gap-6 xl:flex-row">
                     {/* LEFT — form */}
                     <div className="flex-1 min-w-0 space-y-5">
                         {/* Title */}
@@ -272,7 +272,7 @@ export default function NuevaNotaPage() {
                         </div>
 
                         {/* Category + Author */}
-                        <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:grid-cols-2">
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">Categoría <span className="text-red-500">*</span></label>
                                 <select
@@ -313,7 +313,7 @@ export default function NuevaNotaPage() {
                                 <button type="button" onClick={() => setImageOption("upload")} className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-colors ${imageOption === "upload" ? "bg-blue-100 text-blue-700 border border-blue-300" : "bg-gray-100 text-gray-500 border border-gray-200"}`}>📁 Subir</button>
                                 <button type="button" onClick={() => setImageOption("url")} className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-colors ${imageOption === "url" ? "bg-blue-100 text-blue-700 border border-blue-300" : "bg-gray-100 text-gray-500 border border-gray-200"}`}>🔗 URL</button>
                             </div>
-                            <div className="flex gap-3 items-start">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
                                 <div className="flex-1">
                                     {imageOption === "upload" ? (
                                         <label className="block border-2 border-dashed border-gray-300 rounded-lg p-5 text-center hover:border-blue-400 cursor-pointer bg-gray-50 transition-colors">
@@ -369,7 +369,7 @@ export default function NuevaNotaPage() {
                         </div>
 
                         {/* Options */}
-                        <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex items-center gap-8">
+                        <div className="flex flex-col items-start gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:gap-8">
                             <label className="flex items-center gap-3 cursor-pointer group">
                                 <input type="checkbox" checked={isFeatured} onChange={(e) => setIsFeatured(e.target.checked)} className="w-5 h-5 rounded border-gray-300 text-amber-600 focus:ring-amber-500 cursor-pointer" />
                                 <div>
@@ -387,12 +387,12 @@ export default function NuevaNotaPage() {
                         </div>
 
                         {/* Submit */}
-                        <div className="flex items-center gap-4 pb-8">
+                        <div className="flex flex-col items-stretch gap-3 pb-8 sm:flex-row sm:items-center">
                             <button
                                 type="button"
                                 onClick={handleSubmit}
                                 disabled={loading || !title || !categorySlug || !summary}
-                                className="px-8 py-3.5 rounded-xl text-white font-semibold shadow-md transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                                className="w-full cursor-pointer rounded-xl px-8 py-3.5 font-semibold text-white shadow-md transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
                                 style={{ background: loading ? "#9CA3AF" : "#1C1917" }}
                             >
                                 {loading ? "⏳ Publicando..." : "📰 Publicar Nota"}
@@ -400,7 +400,7 @@ export default function NuevaNotaPage() {
                             <button
                                 type="button"
                                 onClick={() => { syncContent(); setTab("preview"); }}
-                                className="px-6 py-3.5 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-100 font-medium transition-colors cursor-pointer border border-gray-200"
+                                className="w-full cursor-pointer rounded-xl border border-gray-200 px-6 py-3.5 font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 sm:w-auto"
                             >
                                 👁️ Previsualizar
                             </button>
@@ -408,9 +408,9 @@ export default function NuevaNotaPage() {
                     </div>
 
                     {/* RIGHT — SEO Meter */}
-                    <div className="w-72 shrink-0 space-y-5">
+                    <div className="w-full shrink-0 space-y-5 xl:w-72">
                         {/* SEO Score */}
-                        <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 sticky top-4">
+                        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm xl:sticky xl:top-4">
                             <h3 className="text-sm font-bold text-gray-900 mb-4">📊 Puntuación SEO</h3>
                             {/* Circular gauge */}
                             <div className="flex justify-center mb-4">
@@ -469,7 +469,7 @@ export default function NuevaNotaPage() {
             {tab === "preview" && (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     {/* Preview header bar */}
-                    <div className="bg-gray-50 border-b border-gray-200 px-5 py-3 flex items-center justify-between">
+                    <div className="flex flex-col gap-3 border-b border-gray-200 bg-gray-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
                         <div className="flex items-center gap-3">
                             <div className="flex gap-1.5">
                                 <span className="w-3 h-3 rounded-full bg-red-400" />
@@ -488,7 +488,7 @@ export default function NuevaNotaPage() {
 
                     {/* Simulated article page */}
                     <div style={{ background: "#F5F5F0", minHeight: "600px" }}>
-                        <div className="max-w-3xl mx-auto px-6 py-10">
+                        <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
                             {/* Breadcrumb */}
                             <nav className="flex items-center gap-2 text-sm mb-6" style={{ color: "#78716C" }}>
                                 <span className="cursor-pointer hover:underline" style={{ color: "#B8920F" }}>Inicio</span>
@@ -528,7 +528,7 @@ export default function NuevaNotaPage() {
                             )}
 
                             {/* Meta */}
-                            <div className="flex items-center gap-4 text-sm mb-8 pb-6 border-b" style={{ color: "#A8A29E", borderColor: "#E7E5E4" }}>
+                            <div className="mb-8 flex flex-wrap items-center gap-3 border-b pb-6 text-sm" style={{ color: "#A8A29E", borderColor: "#E7E5E4" }}>
                                 <span className="font-medium" style={{ color: "#0C0A09" }}>{author || "El Narrador"}</span>
                                 <time>{new Date().toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" })}</time>
                             </div>
@@ -555,7 +555,7 @@ export default function NuevaNotaPage() {
                             )}
 
                             {/* Share buttons mock */}
-                            <div className="mt-10 pt-6 border-t flex items-center gap-3" style={{ borderColor: "#E7E5E4" }}>
+                            <div className="mt-10 flex flex-wrap items-center gap-3 border-t pt-6" style={{ borderColor: "#E7E5E4" }}>
                                 <span className="text-sm font-medium" style={{ color: "#78716C" }}>Compartir:</span>
                                 <span className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: "#1877F2" }}>Facebook</span>
                                 <span className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: "#000" }}>X</span>
@@ -565,7 +565,7 @@ export default function NuevaNotaPage() {
                     </div>
 
                     {/* Preview footer actions */}
-                    <div className="bg-gray-50 border-t border-gray-200 px-5 py-4 flex items-center justify-between">
+                    <div className="flex flex-col gap-3 border-t border-gray-200 bg-gray-50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
                         <div className="flex items-center gap-3">
                             <div className="flex items-center gap-1.5">
                                 <span className="text-sm">📊 SEO:</span>
@@ -574,17 +574,17 @@ export default function NuevaNotaPage() {
                             <span className="text-gray-300">|</span>
                             <span className="text-sm text-gray-500">{wordCount} palabras</span>
                         </div>
-                        <div className="flex gap-3">
+                        <div className="flex flex-col gap-2 sm:flex-row">
                             <button
                                 onClick={() => setTab("editor")}
-                                className="px-5 py-2.5 rounded-lg text-sm font-medium text-gray-600 border border-gray-200 hover:bg-gray-100 cursor-pointer transition-colors"
+                                className="w-full cursor-pointer rounded-lg border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 sm:w-auto"
                             >
                                 ✏️ Editar
                             </button>
                             <button
                                 onClick={handleSubmit}
                                 disabled={loading || !title || !categorySlug || !summary}
-                                className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white shadow-sm cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                                className="w-full cursor-pointer rounded-lg px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
                                 style={{ background: loading ? "#9CA3AF" : "#1C1917" }}
                             >
                                 {loading ? "⏳ Publicando..." : "📰 Publicar Nota"}
@@ -596,3 +596,4 @@ export default function NuevaNotaPage() {
         </div>
     );
 }
+

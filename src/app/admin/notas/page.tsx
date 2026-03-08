@@ -71,21 +71,21 @@ export default function NotasListPage() {
 
     return (
         <div>
-            <div className="flex items-center justify-between mb-6">
+            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900">Todas las Notas</h1>
                     <p className="text-gray-500 text-sm mt-1">{posts.length} artículos en total</p>
                 </div>
                 <Link
                     href="/admin/notas/nueva"
-                    className="bg-gray-900 hover:bg-gray-800 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors shadow-sm"
+                    className="w-full rounded-lg bg-gray-900 px-5 py-2.5 text-center text-sm font-semibold text-white shadow-sm transition-colors hover:bg-gray-800 sm:w-auto"
                 >
                     + Nueva Nota
                 </Link>
             </div>
 
             {/* Filter tabs */}
-            <div className="flex gap-2 mb-6">
+            <div className="mb-6 flex flex-wrap gap-2">
                 {[
                     { key: "all" as const, label: "Todas", count: posts.length },
                     { key: "featured" as const, label: "⭐ Destacadas", count: posts.filter((p) => p.is_featured).length },
@@ -115,8 +115,8 @@ export default function NotasListPage() {
                     </Link>
                 </div>
             ) : (
-                <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-                    <table className="w-full text-sm">
+                <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+                    <div className="overflow-x-auto"><table className="min-w-[760px] w-full text-sm">
                         <thead>
                             <tr className="border-b border-gray-100 bg-gray-50">
                                 <th className="text-left px-4 py-3 text-gray-500 font-semibold">
@@ -223,9 +223,10 @@ export default function NotasListPage() {
                                 </tr>
                             ))}
                         </tbody>
-                    </table>
+                    </table></div>
                 </div>
             )}
         </div>
     );
 }
+
