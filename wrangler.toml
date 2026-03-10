@@ -11,3 +11,4 @@ directory = ".open-next/assets"
 
 [vars]
 NEXT_PUBLIC_SUPABASE_URL = "https://fewwvcrfhdgnpfjyadev.supabase.co"
+NEXT_PUBLIC_SITE_URL = "https://elnarradordemexico.com"

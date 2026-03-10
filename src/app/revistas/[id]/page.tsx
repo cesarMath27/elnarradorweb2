@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import ShareButtonsMagazine from "./ShareButtonsMagazine";
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://elnarradordemexico.com";
+
 export const revalidate = 300;
 
 type Props = {
@@ -23,8 +25,14 @@ export async function generateMetadata({ params }: Props) {
         description:
           magazine.description ||
           `Lee la revista "${magazine.title}" de El Narrador de México`,
+        url: `${SITE_URL}/revistas/${id}`,
+        siteName: "El Narrador de México",
+        locale: "es_MX",
         images: magazine.cover_image_url ? [magazine.cover_image_url] : [],
         type: "article",
+      },
+      alternates: {
+        canonical: `${SITE_URL}/revistas/${id}`,
       },
     };
   } catch {

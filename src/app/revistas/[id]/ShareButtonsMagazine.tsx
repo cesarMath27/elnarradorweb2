@@ -1,12 +1,14 @@
 "use client";
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://elnarradordemexico.com";
+
 type Props = {
   title: string;
 };
 
 export default function ShareButtonsMagazine({ title }: Props) {
   const share = (platform: string) => {
-    const url = window.location.href;
+    const url = `${SITE_URL}${window.location.pathname}`;
     const text = encodeURIComponent(`Lee la revista "${title}" en El Narrador de México`);
     const encodedUrl = encodeURIComponent(url);
 

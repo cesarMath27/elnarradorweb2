@@ -1,12 +1,14 @@
 "use client";
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://elnarradordemexico.com";
+
 type ShareButtonsProps = {
   title: string;
 };
 
 export default function ShareButtons({ title }: ShareButtonsProps) {
   const share = (platform: string) => {
-    const url = window.location.href;
+    const url = `${SITE_URL}${window.location.pathname}`;
     const text = encodeURIComponent(title);
     const encodedUrl = encodeURIComponent(url);
 
@@ -20,7 +22,7 @@ export default function ShareButtons({ title }: ShareButtonsProps) {
   };
 
   const copyLink = async () => {
-    await navigator.clipboard.writeText(window.location.href);
+    await navigator.clipboard.writeText(`${SITE_URL}${window.location.pathname}`);
   };
 
   return (
