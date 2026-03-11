@@ -39,7 +39,7 @@ export default async function AdminLayout({
         } else {
             // Fallback: check legacy ADMIN_EMAIL env var
             const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
-            if (!adminEmail || userEmail !== adminEmail) {
+            if (adminEmail && userEmail !== adminEmail) {
                 redirect("/admin/login");
             }
             adminDisplayName = user.email ?? "Admin";
