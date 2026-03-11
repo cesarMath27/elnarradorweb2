@@ -1,18 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 
 export default function AdminLoginPage() {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
-    const [debug, setDebug] = useState<string | null>(null);
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         setLoading(true);
         setError(null);
-        setDebug("Intentando iniciar sesión...");
 
         const formData = new FormData(e.currentTarget);
         const email = formData.get("email") as string;
@@ -20,19 +19,16 @@ export default function AdminLoginPage() {
 
         const supabase = createClient();
 
-        setDebug(`Conectando con Supabase para: ${email}`);
-
         const { data, error: signInError } = await supabase.auth.signInWithPassword({
             email,
             password,
         });
 
         if (signInError) {
-            setDebug(`Error: ${signInError.message} (código: ${signInError.status})`);
             if (signInError.message === "Invalid login credentials") {
-                setError("Correo o contraseña incorrectos. Verifica tus datos.");
+                setError("Correo o contrasenya incorrectos. Verifica tus datos.");
             } else if (signInError.message.includes("Email not confirmed")) {
-                setError("Debes confirmar tu correo electrónico en tu bandeja de entrada antes de continuar.");
+                setError("Debes confirmar tu correo electronico en tu bandeja de entrada antes de continuar.");
             } else {
                 setError(signInError.message);
             }
@@ -41,11 +37,10 @@ export default function AdminLoginPage() {
         }
 
         if (data.user) {
-            setDebug(`Sesión iniciada como: ${data.user.email}. Redirigiendo...`);
             // Force a hard navigation so middleware picks up the new cookies
             window.location.href = "/admin";
         } else {
-            setDebug("Login sin error pero sin usuario. Intenta de nuevo.");
+            setError("No se pudo iniciar sesion. Intenta de nuevo.");
             setLoading(false);
         }
     }
@@ -75,20 +70,13 @@ export default function AdminLoginPage() {
             >
                 {/* Logo */}
                 <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-                    <div
-                        style={{
-                            width: "52px",
-                            height: "52px",
-                            background: "#D4A517",
-                            borderRadius: "8px",
-                            display: "inline-flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            marginBottom: "1rem",
-                        }}
-                    >
-                        <span style={{ color: "white", fontWeight: "bold", fontSize: "1.5rem" }}>N</span>
-                    </div>
+                    <Image
+                        src="/images/El Narrador logo sin fondo.png"
+                        alt="El Narrador"
+                        width={64}
+                        height={64}
+                        style={{ margin: "0 auto 1rem", borderRadius: "8px" }}
+                    />
                     <h1 style={{ fontSize: "1.5rem", fontWeight: "700", color: "#1C1917", margin: 0 }}>
                         El Narrador — Admin
                     </h1>
@@ -113,23 +101,6 @@ export default function AdminLoginPage() {
                     </div>
                 )}
 
-                {debug && (
-                    <div
-                        style={{
-                            background: "#F0FDF4",
-                            border: "1px solid #BBF7D0",
-                            color: "#166534",
-                            borderRadius: "8px",
-                            padding: "0.75rem 1rem",
-                            marginBottom: "1.25rem",
-                            fontSize: "0.8rem",
-                            fontFamily: "monospace",
-                        }}
-                    >
-                        🔍 {debug}
-                    </div>
-                )}
-
                 <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
                     <div>
                         <label
@@ -144,7 +115,6 @@ export default function AdminLoginPage() {
                             type="email"
                             autoComplete="email"
                             required
-                            defaultValue="cesaradrian660@gmail.com"
                             style={{
                                 width: "100%",
                                 padding: "0.75rem 1rem",

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { uploadNews } from "../../actions";
+import { createClient } from "@/lib/supabase/client";
 
 /* ───── categories ───── */
 const categories = [
@@ -124,6 +125,25 @@ export default function NuevaNotaPage() {
     const [imagePreview, setImagePreview] = useState("");
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imageUrl, setImageUrl] = useState("");
+
+    /* auto-fill author from admin_users */
+    useEffect(() => {
+        async function loadAuthor() {
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user?.email) {
+                const { data } = await supabase
+                    .from("admin_users")
+                    .select("display_name")
+                    .eq("email", user.email.toLowerCase())
+                    .single();
+                if (data?.display_name) {
+                    setAuthor(data.display_name);
+                }
+            }
+        }
+        loadAuthor();
+    }, []);
 
     /* rich editor */
     const editorRef = useRef<HTMLDivElement>(null);

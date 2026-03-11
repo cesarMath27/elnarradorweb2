@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const footerLinks = [
   { name: "Política de Privacidad", href: "/privacidad" },
@@ -23,11 +24,13 @@ export default function Footer() {
           {/* Logo and description */}
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-gold rounded-sm flex items-center justify-center">
-                <span className="text-white font-heading font-bold text-xl">
-                  N
-                </span>
-              </div>
+              <Image
+                src="/images/El Narrador logo sin fondo.png"
+                alt="El Narrador"
+                width={40}
+                height={40}
+                className="rounded-sm"
+              />
               <div>
                 <h2 className="font-heading text-xl font-bold leading-tight">
                   El Narrador

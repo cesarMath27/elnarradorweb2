@@ -1,7 +1,9 @@
 import Link from "next/link";
+import Image from "next/image";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getAdminUserByEmail } from "@/lib/supabase/admin-users";
 import { logoutAdmin } from "./actions";
 
 export default async function AdminLayout({
@@ -13,6 +15,8 @@ export default async function AdminLayout({
     const currentPath = headersList.get("x-invoke-path") || "";
     const isLoginPage = currentPath === "/admin/login";
 
+    let adminDisplayName = "";
+
     // Only protect non-login routes
     if (!isLoginPage) {
         const supabase = await createClient();
@@ -21,22 +25,24 @@ export default async function AdminLayout({
             error,
         } = await supabase.auth.getUser();
 
-        // Debug log – visible in the terminal running `npm run dev`
-        console.log("[Admin Layout] path:", currentPath, "| user:", user?.email ?? "null", "| error:", error?.message ?? "none");
-
         if (error || !user) {
-            console.log("[Admin Layout] No user found, redirecting to login");
             redirect("/admin/login");
         }
 
-        const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
-        const userEmail = user.email?.toLowerCase();
+        const userEmail = user.email?.toLowerCase() ?? "";
 
-        console.log("[Admin Layout] adminEmail:", adminEmail, "| userEmail:", userEmail, "| match:", userEmail === adminEmail);
+        // Check admin_users table first
+        const adminUser = await getAdminUserByEmail(userEmail);
 
-        if (adminEmail && userEmail !== adminEmail) {
-            console.log("[Admin Layout] Email mismatch, redirecting to login");
-            redirect("/admin/login");
+        if (adminUser) {
+            adminDisplayName = adminUser.display_name;
+        } else {
+            // Fallback: check legacy ADMIN_EMAIL env var
+            const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+            if (!adminEmail || userEmail !== adminEmail) {
+                redirect("/admin/login");
+            }
+            adminDisplayName = user.email ?? "Admin";
         }
     }
 
@@ -77,22 +83,13 @@ export default async function AdminLayout({
                         gap: "0.75rem",
                     }}
                 >
-                    <div
-                        style={{
-                            width: "36px",
-                            height: "36px",
-                            background: "#D4A517",
-                            borderRadius: "6px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            fontWeight: "bold",
-                            fontSize: "1.1rem",
-                            flexShrink: 0,
-                        }}
-                    >
-                        N
-                    </div>
+                    <Image
+                        src="/images/El Narrador logo sin fondo.png"
+                        alt="El Narrador"
+                        width={36}
+                        height={36}
+                        style={{ borderRadius: "6px", flexShrink: 0 }}
+                    />
                     <div>
                         <div style={{ fontWeight: "700", fontSize: "0.95rem" }}>El Narrador</div>
                         <div style={{ fontSize: "0.72rem", color: "#9CA3AF" }}>Panel de Admin</div>
@@ -114,9 +111,18 @@ export default async function AdminLayout({
                         Herramientas
                     </div>
                     <NavLink href="/admin/migrate" label="🔄 Migración WP" />
+                    <div style={{ padding: "0.75rem 0.75rem 0.25rem", fontSize: "0.7rem", color: "#6B7280", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                        Usuarios
+                    </div>
+                    <NavLink href="/admin/usuarios" label="👥 Gestión de Usuarios" />
                 </nav>
 
                 <div style={{ padding: "1rem", borderTop: "1px solid #1F2937" }}>
+                    {adminDisplayName && (
+                        <div style={{ padding: "0 0.25rem 0.75rem", fontSize: "0.8rem", color: "#9CA3AF", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            {adminDisplayName}
+                        </div>
+                    )}
                     <form action={logoutAdmin}>
                         <button
                             type="submit"

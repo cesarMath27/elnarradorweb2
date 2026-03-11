@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import SearchBar from "@/components/ui/SearchBar";
 import DarkModeToggle from "@/components/ui/DarkModeToggle";
 
@@ -28,9 +29,13 @@ export default function Navbar() {
       <div className="bg-surface border-b border-border">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 cursor-pointer">
-            <div className="w-10 h-10 bg-gold rounded-sm flex items-center justify-center">
-              <span className="text-white font-heading font-bold text-xl">N</span>
-            </div>
+            <Image
+              src="/images/El Narrador logo sin fondo.png"
+              alt="El Narrador"
+              width={40}
+              height={40}
+              className="rounded-sm"
+            />
             <div>
               <h1 className="font-heading text-xl font-bold text-foreground leading-tight">
                 El Narrador
