@@ -3,6 +3,11 @@ main = ".open-next/worker.js"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
+routes = [
+  { pattern = "elnarradordemexico.com/*", zone_name = "elnarradordemexico.com" },
+  { pattern = "www.elnarradordemexico.com/*", zone_name = "elnarradordemexico.com" },
+]
+
 [assets]
 directory = ".open-next/assets"
 
