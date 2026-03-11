@@ -1,6 +1,27 @@
 import type { NextConfig } from "next";
 
+const CORS_HEADERS = [
+  { key: "Access-Control-Allow-Origin", value: "*" },
+  { key: "Access-Control-Allow-Methods", value: "GET, HEAD, OPTIONS" },
+];
+
 const nextConfig: NextConfig = {
+  async headers() {
+    return [
+      {
+        source: "/_next/static/:path*",
+        headers: CORS_HEADERS,
+      },
+      {
+        source: "/:path*.woff2",
+        headers: CORS_HEADERS,
+      },
+      {
+        source: "/:path*.woff",
+        headers: CORS_HEADERS,
+      },
+    ];
+  },
   images: {
     unoptimized: true,
     remotePatterns: [
