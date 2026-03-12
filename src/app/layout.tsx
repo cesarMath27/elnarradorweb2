@@ -55,11 +55,20 @@ export const metadata: Metadata = {
     locale: "es_MX",
     siteName: "El Narrador de México",
     url: SITE_URL,
+    images: [
+      {
+        url: `${SITE_URL}/images/banner-narrador.jpg`,
+        width: 1200,
+        height: 630,
+        alt: "El Narrador de México",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "El Narrador de México",
     description: "Tu fuente de noticias confiable de México",
+    images: [`${SITE_URL}/images/banner-narrador.jpg`],
   },
   robots: {
     index: true,

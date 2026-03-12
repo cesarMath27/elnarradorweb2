@@ -13,6 +13,14 @@ export const metadata: Metadata = {
     description:
       "Lee nuestras revistas digitales. Descarga o consulta en línea las publicaciones de El Narrador de México.",
     type: "website",
+    images: [
+      {
+        url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://elnarradordemexico.com"}/images/banner-narrador.jpg`,
+        width: 1200,
+        height: 630,
+        alt: "El Narrador de México",
+      },
+    ],
   },
 };
 
