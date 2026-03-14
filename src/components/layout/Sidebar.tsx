@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { NewsArticle } from "@/lib/supabase/queries";
+import { getArticleUrl } from "@/lib/utils/slug";
 
 type SidebarProps = {
   title: string;
@@ -17,7 +18,7 @@ export default function Sidebar({ title, articles }: SidebarProps) {
         {articles.map((article, index) => (
           <Link
             key={article.id}
-            href={`/articulo/${article.id}`}
+            href={getArticleUrl(article)}
             className="flex gap-3 group cursor-pointer"
           >
             <div className="relative w-20 h-20 shrink-0 rounded overflow-hidden bg-border">

@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { NewsArticle } from "@/lib/supabase/queries";
 import CategoryBadge from "./CategoryBadge";
+import { getArticleUrl } from "@/lib/utils/slug";
 
 type FeaturedHeroProps = {
   article: NewsArticle;
@@ -10,7 +11,7 @@ type FeaturedHeroProps = {
 export default function FeaturedHero({ article }: FeaturedHeroProps) {
   return (
     <Link
-      href={`/articulo/${article.id}`}
+      href={getArticleUrl(article)}
       className="relative block h-[400px] md:h-[500px] rounded-lg overflow-hidden group cursor-pointer"
     >
       {article.image_url ? (

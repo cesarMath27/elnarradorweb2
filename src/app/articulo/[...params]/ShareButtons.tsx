@@ -2,11 +2,11 @@
 
 type ShareButtonsProps = {
   title: string;
+  url: string;
 };
 
-export default function ShareButtons({ title }: ShareButtonsProps) {
+export default function ShareButtons({ title, url }: ShareButtonsProps) {
   const share = (platform: string) => {
-    const url = window.location.href;
     const text = encodeURIComponent(title);
     const encodedUrl = encodeURIComponent(url);
 
@@ -20,7 +20,7 @@ export default function ShareButtons({ title }: ShareButtonsProps) {
   };
 
   const copyLink = async () => {
-    await navigator.clipboard.writeText(window.location.href);
+    await navigator.clipboard.writeText(url);
   };
 
   return (

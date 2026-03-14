@@ -4,6 +4,8 @@ import type { Metadata } from "next";
 
 export const revalidate = 300;
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://elnarradordemexico.com";
+
 export const metadata: Metadata = {
   title: "Revistas - El Narrador de México",
   description:
@@ -12,7 +14,27 @@ export const metadata: Metadata = {
     title: "Revistas - El Narrador de México",
     description:
       "Lee nuestras revistas digitales. Descarga o consulta en línea las publicaciones de El Narrador de México.",
+    url: `${SITE_URL}/revistas`,
+    siteName: "El Narrador de México",
+    locale: "es_MX",
     type: "website",
+    images: [
+      {
+        url: `${SITE_URL}/images/banner-narrador.jpg`,
+        width: 1200,
+        height: 630,
+        alt: "Revistas - El Narrador de México",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@elnarradormx",
+    title: "Revistas - El Narrador de México",
+    description: "Lee nuestras revistas digitales de El Narrador de México.",
+  },
+  alternates: {
+    canonical: `${SITE_URL}/revistas`,
   },
 };
 

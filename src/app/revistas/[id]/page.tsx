@@ -2,6 +2,9 @@ import { getMagazineById } from "@/lib/supabase/magazines";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import ShareButtonsMagazine from "./ShareButtonsMagazine";
+import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://elnarradordemexico.com";
 
 export const revalidate = 300;
 
@@ -23,8 +26,41 @@ export async function generateMetadata({ params }: Props) {
         description:
           magazine.description ||
           `Lee la revista "${magazine.title}" de El Narrador de México`,
-        images: magazine.cover_image_url ? [magazine.cover_image_url] : [],
+        url: `${SITE_URL}/revistas/${id}`,
+        siteName: "El Narrador de México",
+        locale: "es_MX",
+        images: magazine.cover_image_url
+          ? [
+              {
+                url: magazine.cover_image_url,
+                width: 800,
+                height: 1100,
+                alt: magazine.title,
+              },
+            ]
+          : [
+              {
+                url: `${SITE_URL}/images/banner-narrador.jpg`,
+                width: 1200,
+                height: 630,
+                alt: "El Narrador de México",
+              },
+            ],
         type: "article",
+      },
+      twitter: {
+        card: "summary_large_image",
+        site: "@elnarradormx",
+        title: `${magazine.title} - Revista`,
+        description:
+          magazine.description ||
+          `Lee la revista "${magazine.title}" de El Narrador de México`,
+        images: magazine.cover_image_url
+          ? [magazine.cover_image_url]
+          : [`${SITE_URL}/images/banner-narrador.jpg`],
+      },
+      alternates: {
+        canonical: `${SITE_URL}/revistas/${id}`,
       },
     };
   } catch {
@@ -42,7 +78,17 @@ export default async function MagazineViewPage({ params }: Props) {
     notFound();
   }
 
+  const canonicalUrl = `${SITE_URL}/revistas/${id}`;
+
   return (
+    <>
+    <BreadcrumbJsonLd
+      items={[
+        { name: "Inicio", url: SITE_URL },
+        { name: "Revistas", url: `${SITE_URL}/revistas` },
+        { name: magazine.title, url: canonicalUrl },
+      ]}
+    />
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-sm text-muted mb-6">
@@ -103,7 +149,7 @@ export default async function MagazineViewPage({ params }: Props) {
             </svg>
             Descargar PDF
           </a>
-          <ShareButtonsMagazine title={magazine.title} />
+          <ShareButtonsMagazine title={magazine.title} url={canonicalUrl} />
         </div>
         <div className="h-px bg-border mt-6" />
       </div>
@@ -117,5 +163,6 @@ export default async function MagazineViewPage({ params }: Props) {
         />
       </div>
     </div>
+    </>
   );
 }

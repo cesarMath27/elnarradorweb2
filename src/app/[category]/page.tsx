@@ -1,7 +1,10 @@
 import { getNewsByCategory, getMostViewed } from "@/lib/supabase/queries";
 import ArticleGrid from "@/components/news/ArticleGrid";
 import Sidebar from "@/components/layout/Sidebar";
+import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import { notFound } from "next/navigation";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://elnarradordemexico.com";
 
 export const revalidate = 300;
 
@@ -28,7 +31,32 @@ export async function generateMetadata({ params }: Props) {
   if (!name) return {};
   return {
     title: `${name} - El Narrador de México`,
-    description: `Noticias de ${name} en El Narrador de México`,
+    description: `Últimas noticias de ${name} en El Narrador de México. Cobertura completa y análisis.`,
+    openGraph: {
+      title: `${name} - El Narrador de México`,
+      description: `Últimas noticias de ${name} en El Narrador de México. Cobertura completa y análisis.`,
+      url: `${SITE_URL}/${category}`,
+      siteName: "El Narrador de México",
+      locale: "es_MX",
+      type: "website",
+      images: [
+        {
+          url: `${SITE_URL}/images/banner-narrador.jpg`,
+          width: 1200,
+          height: 630,
+          alt: `${name} - El Narrador de México`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      site: "@elnarradormx",
+      title: `${name} - El Narrador de México`,
+      description: `Últimas noticias de ${name} en El Narrador de México`,
+    },
+    alternates: {
+      canonical: `${SITE_URL}/${category}`,
+    },
   };
 }
 
@@ -50,6 +78,13 @@ export default async function CategoryPage({ params }: Props) {
   ]);
 
   return (
+    <>
+    <BreadcrumbJsonLd
+      items={[
+        { name: "Inicio", url: SITE_URL },
+        { name: categoryName, url: `${SITE_URL}/${category}` },
+      ]}
+    />
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Category header */}
       <div className="mb-8">
@@ -82,5 +117,6 @@ export default async function CategoryPage({ params }: Props) {
         </div>
       </div>
     </div>
+    </>
   );
 }

@@ -11,6 +11,13 @@ export async function generateMetadata({ searchParams }: Props) {
     title: q
       ? `Resultados para "${q}" - El Narrador de México`
       : "Buscar - El Narrador de México",
+    description: q
+      ? `Resultados de búsqueda para "${q}" en El Narrador de México`
+      : "Busca noticias en El Narrador de México",
+    robots: {
+      index: false,
+      follow: true,
+    },
   };
 }
 

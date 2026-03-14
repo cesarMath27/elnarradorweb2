@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { NewsArticle } from "@/lib/supabase/queries";
 import CategoryBadge from "./CategoryBadge";
+import { getArticleUrl } from "@/lib/utils/slug";
 
 type ArticleCardProps = {
   article: NewsArticle;
@@ -15,7 +16,7 @@ export default function ArticleCard({
   if (variant === "horizontal") {
     return (
       <Link
-        href={`/articulo/${article.id}`}
+        href={getArticleUrl(article)}
         className="flex gap-4 group cursor-pointer bg-surface rounded-lg border border-border overflow-hidden hover:shadow-md transition-shadow duration-300"
       >
         <div className="relative w-48 shrink-0 bg-border">
@@ -53,7 +54,7 @@ export default function ArticleCard({
 
   return (
     <Link
-      href={`/articulo/${article.id}`}
+      href={getArticleUrl(article)}
       className="group cursor-pointer bg-surface rounded-lg border border-border overflow-hidden hover:shadow-md transition-shadow duration-300"
     >
       <div className="relative aspect-video bg-border">

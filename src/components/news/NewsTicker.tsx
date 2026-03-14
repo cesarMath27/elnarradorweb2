@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { slugify } from "@/lib/utils/slug";
 
 type NewsTickerProps = {
   articles: Array<{
@@ -37,7 +38,7 @@ export default function NewsTicker({ articles }: NewsTickerProps) {
           {articles.map((article, index) => (
             <Link
               key={article.id}
-              href={`/articulo/${article.id}`}
+              href={`/articulo/${article.id}/${slugify(article.title)}`}
               className={`absolute inset-0 flex items-center text-sm font-medium transition-all duration-700 cursor-pointer hover:text-gold ${
                 index === currentIndex
                   ? "opacity-100 translate-y-0"

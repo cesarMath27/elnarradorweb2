@@ -2,11 +2,12 @@
 
 type Props = {
   title: string;
+  url?: string;
 };
 
-export default function ShareButtonsMagazine({ title }: Props) {
+export default function ShareButtonsMagazine({ title, url: canonicalUrl }: Props) {
   const share = (platform: string) => {
-    const url = window.location.href;
+    const url = canonicalUrl || window.location.href;
     const text = encodeURIComponent(`Lee la revista "${title}" en El Narrador de México`);
     const encodedUrl = encodeURIComponent(url);
 

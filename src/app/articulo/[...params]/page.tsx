@@ -1,31 +1,35 @@
 import { getNewsById, getLatestNews } from "@/lib/supabase/queries";
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import CategoryBadge from "@/components/news/CategoryBadge";
 import ShareButtons from "./ShareButtons";
-import { ArticleJsonLd } from "@/components/seo/JsonLd";
+import { ArticleJsonLd, BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import { notFound } from "next/navigation";
+import { slugify, getArticleUrl } from "@/lib/utils/slug";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://elnarradordemexico.com";
 
 export const revalidate = 300;
 
 type Props = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ params: string[] }>;
 };
 
 export async function generateMetadata({ params }: Props) {
-  const { id } = await params;
+  const { params: segments } = await params;
+  const id = segments[0];
   try {
     const article = await getNewsById(id);
+    const canonicalUrl = `${SITE_URL}${getArticleUrl(article)}`;
     return {
       title: `${article.title} - El Narrador de México`,
       description: article.summary || article.title,
       openGraph: {
         title: article.title,
         description: article.summary || article.title,
-        url: `${SITE_URL}/articulo/${id}`,
+        url: canonicalUrl,
         siteName: "El Narrador de México",
         locale: "es_MX",
         type: "article",
@@ -42,16 +46,26 @@ export async function generateMetadata({ params }: Props) {
                 alt: article.title,
               },
             ]
-          : [],
+          : [
+              {
+                url: `${SITE_URL}/images/banner-narrador.jpg`,
+                width: 1200,
+                height: 630,
+                alt: "El Narrador de México",
+              },
+            ],
       },
       twitter: {
         card: "summary_large_image",
+        site: "@elnarradormx",
         title: article.title,
         description: article.summary || article.title,
-        images: article.image_url ? [article.image_url] : [],
+        images: article.image_url
+          ? [article.image_url]
+          : [`${SITE_URL}/images/banner-narrador.jpg`],
       },
       alternates: {
-        canonical: `${SITE_URL}/articulo/${id}`,
+        canonical: canonicalUrl,
       },
     };
   } catch {
@@ -60,7 +74,9 @@ export async function generateMetadata({ params }: Props) {
 }
 
 export default async function ArticlePage({ params }: Props) {
-  const { id } = await params;
+  const { params: segments } = await params;
+  const id = segments[0];
+  const urlSlug = segments.slice(1).join("/");
 
   let article;
   try {
@@ -69,8 +85,15 @@ export default async function ArticlePage({ params }: Props) {
     notFound();
   }
 
+  // Redirect to the canonical descriptive URL if slug is missing or wrong
+  const expectedSlug = slugify(article.title);
+  if (expectedSlug && urlSlug !== expectedSlug) {
+    redirect(getArticleUrl(article));
+  }
+
   const relatedNews = await getLatestNews(5);
   const related = relatedNews.filter((a) => a.id !== article.id).slice(0, 5);
+  const canonicalUrl = `${SITE_URL}${getArticleUrl(article)}`;
 
   return (
     <>
@@ -80,14 +103,28 @@ export default async function ArticlePage({ params }: Props) {
         image={article.image_url}
         datePublished={article.published_at}
         authorName={article.author_name}
-        url={`${SITE_URL}/articulo/${article.id}`}
+        url={canonicalUrl}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Inicio", url: SITE_URL },
+          ...(article.category_slug
+            ? [
+                {
+                  name: article.category_name,
+                  url: `${SITE_URL}/${article.category_slug}`,
+                },
+              ]
+            : []),
+          { name: article.title, url: canonicalUrl },
+        ]}
       />
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Article content */}
         <article className="flex-1 min-w-0">
           {/* Breadcrumb */}
-          <nav className="flex items-center gap-2 text-sm text-muted mb-6">
+          <nav className="flex items-center gap-2 text-sm text-muted mb-6" aria-label="Breadcrumb">
             <Link
               href="/"
               className="hover:text-gold transition-colors duration-200 cursor-pointer"
@@ -127,7 +164,7 @@ export default async function ArticlePage({ params }: Props) {
                 <span className="font-medium text-foreground">
                   {article.author_name}
                 </span>
-                <time>
+                <time dateTime={article.published_at}>
                   {new Date(article.published_at).toLocaleDateString("es-MX", {
                     day: "numeric",
                     month: "long",
@@ -137,7 +174,7 @@ export default async function ArticlePage({ params }: Props) {
                   })}
                 </time>
               </div>
-              <ShareButtons title={article.title} />
+              <ShareButtons title={article.title} url={canonicalUrl} />
             </div>
           </header>
 

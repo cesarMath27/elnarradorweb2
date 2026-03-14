@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { createClient } from "@supabase/supabase-js";
+import { slugify } from "@/lib/utils/slug";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://elnarradordemexico.com";
 
@@ -12,7 +13,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Fetch all news articles
   const { data: articles } = await supabase
     .from("news")
-    .select("id, published_at, category_slug")
+    .select("id, title, published_at, category_slug")
     .order("published_at", { ascending: false });
 
   // Fetch all magazines
@@ -54,12 +55,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.9,
   }));
 
-  const articlePages: MetadataRoute.Sitemap = (articles || []).map((article) => ({
-    url: `${SITE_URL}/articulo/${article.id}`,
-    lastModified: new Date(article.published_at),
-    changeFrequency: "weekly" as const,
-    priority: 0.7,
-  }));
+  const articlePages: MetadataRoute.Sitemap = (articles || []).map((article) => {
+    const slug = slugify(article.title || "");
+    const path = slug
+      ? `/articulo/${article.id}/${slug}`
+      : `/articulo/${article.id}`;
+    return {
+      url: `${SITE_URL}${path}`,
+      lastModified: new Date(article.published_at),
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    };
+  });
 
   const magazinePages: MetadataRoute.Sitemap = (magazines || []).map((mag) => ({
     url: `${SITE_URL}/revistas/${mag.id}`,
