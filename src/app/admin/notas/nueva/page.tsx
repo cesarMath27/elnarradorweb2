@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { uploadNews } from "../../actions";
 import { createClient } from "@/lib/supabase/client";
+import PublishSuccessModal from "./PublishSuccessModal";
 
 /* ───── categories ───── */
 const categories = [
@@ -112,6 +113,11 @@ export default function NuevaNotaPage() {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
 
+    /* scheduling */
+    const [publishMode, setPublishMode] = useState<"now" | "schedule">("now");
+    const [scheduledAt, setScheduledAt] = useState("");
+    const [publishedArticle, setPublishedArticle] = useState<{ id: string; status: "published" | "scheduled"; scheduledAt?: string } | null>(null);
+
     /* form state */
     const [title, setTitle] = useState("");
     const [categorySlug, setCategorySlug] = useState("");
@@ -189,6 +195,11 @@ export default function NuevaNotaPage() {
 
     /* submit */
     async function handleSubmit() {
+        if (publishMode === "schedule" && (!scheduledAt || new Date(scheduledAt) <= new Date())) {
+            setError("La fecha de programación debe ser en el futuro.");
+            return;
+        }
+
         setLoading(true);
         setError(null);
         setSuccess(false);
@@ -201,6 +212,10 @@ export default function NuevaNotaPage() {
         formData.set("category_name", categoryName);
         formData.set("author_name", author);
         formData.set("imageOption", imageOption);
+        formData.set("publish_mode", publishMode);
+        if (publishMode === "schedule") {
+            formData.set("scheduled_at", new Date(scheduledAt).toISOString());
+        }
         if (isFeatured) formData.set("is_featured", "on");
         if (isBreaking) formData.set("is_breaking", "on");
 
@@ -216,6 +231,11 @@ export default function NuevaNotaPage() {
             setError(result.error);
         } else {
             setSuccess(true);
+            setPublishedArticle({
+                id: result.id,
+                status: result.status as "published" | "scheduled",
+                scheduledAt: publishMode === "schedule" ? scheduledAt : undefined,
+            });
             setTitle("");
             setCategorySlug("");
             setSummary("");
@@ -225,6 +245,8 @@ export default function NuevaNotaPage() {
             setImageUrl("");
             setIsFeatured(false);
             setIsBreaking(false);
+            setPublishMode("now");
+            setScheduledAt("");
             if (editorRef.current) editorRef.current.innerHTML = "";
         }
         setLoading(false);
@@ -406,16 +428,51 @@ export default function NuevaNotaPage() {
                             </label>
                         </div>
 
+                        {/* Scheduling */}
+                        <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+                            <label className="block text-sm font-semibold text-gray-700 mb-3">Publicación</label>
+                            <div className="flex gap-2 mb-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setPublishMode("now")}
+                                    className={`px-4 py-2 text-sm rounded-lg font-medium transition-colors ${publishMode === "now" ? "bg-green-100 text-green-700 border border-green-300" : "bg-gray-100 text-gray-500 border border-gray-200"}`}
+                                >
+                                    Publicar ahora
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setPublishMode("schedule")}
+                                    className={`px-4 py-2 text-sm rounded-lg font-medium transition-colors ${publishMode === "schedule" ? "bg-amber-100 text-amber-700 border border-amber-300" : "bg-gray-100 text-gray-500 border border-gray-200"}`}
+                                >
+                                    🕐 Programar
+                                </button>
+                            </div>
+                            {publishMode === "schedule" && (
+                                <div>
+                                    <label className="block text-xs text-gray-500 mb-1">Fecha y hora de publicación</label>
+                                    <input
+                                        type="datetime-local"
+                                        value={scheduledAt}
+                                        onChange={(e) => setScheduledAt(e.target.value)}
+                                        min={new Date().toISOString().slice(0, 16)}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                                    />
+                                </div>
+                            )}
+                        </div>
+
                         {/* Submit */}
                         <div className="flex items-center gap-4 pb-8">
                             <button
                                 type="button"
                                 onClick={handleSubmit}
-                                disabled={loading || !title || !categorySlug || !summary}
+                                disabled={loading || !title || !categorySlug || !summary || (publishMode === "schedule" && !scheduledAt)}
                                 className="px-8 py-3.5 rounded-xl text-white font-semibold shadow-md transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-                                style={{ background: loading ? "#9CA3AF" : "#1C1917" }}
+                                style={{ background: loading ? "#9CA3AF" : publishMode === "schedule" ? "#D97706" : "#1C1917" }}
                             >
-                                {loading ? "⏳ Publicando..." : "📰 Publicar Nota"}
+                                {loading
+                                    ? (publishMode === "schedule" ? "⏳ Programando..." : "⏳ Publicando...")
+                                    : (publishMode === "schedule" ? "🕐 Programar Nota" : "📰 Publicar Nota")}
                             </button>
                             <button
                                 type="button"
@@ -603,16 +660,27 @@ export default function NuevaNotaPage() {
                             </button>
                             <button
                                 onClick={handleSubmit}
-                                disabled={loading || !title || !categorySlug || !summary}
+                                disabled={loading || !title || !categorySlug || !summary || (publishMode === "schedule" && !scheduledAt)}
                                 className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white shadow-sm cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                                style={{ background: loading ? "#9CA3AF" : "#1C1917" }}
+                                style={{ background: loading ? "#9CA3AF" : publishMode === "schedule" ? "#D97706" : "#1C1917" }}
                             >
-                                {loading ? "⏳ Publicando..." : "📰 Publicar Nota"}
+                                {loading
+                                    ? (publishMode === "schedule" ? "⏳ Programando..." : "⏳ Publicando...")
+                                    : (publishMode === "schedule" ? "🕐 Programar Nota" : "📰 Publicar Nota")}
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {publishedArticle && (
+                <PublishSuccessModal
+                    articleId={publishedArticle.id}
+                    status={publishedArticle.status}
+                    scheduledAt={publishedArticle.scheduledAt}
+                    onClose={() => setPublishedArticle(null)}
+                />
+            )}
         </div>
     );
 }

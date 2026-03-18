@@ -13,12 +13,13 @@ type NewsItem = {
     is_breaking: boolean;
     view_count: number;
     source: string;
+    status: string;
 };
 
 export default function NotasListPage() {
     const [posts, setPosts] = useState<NewsItem[]>([]);
     const [loading, setLoading] = useState(true);
-    const [filter, setFilter] = useState<"all" | "featured" | "breaking">("all");
+    const [filter, setFilter] = useState<"all" | "featured" | "breaking" | "scheduled">("all");
 
     useEffect(() => {
         async function load() {
@@ -26,7 +27,7 @@ export default function NotasListPage() {
             const { data } = await supabase
                 .from("news")
                 .select(
-                    "id, title, category_name, published_at, is_featured, is_breaking, view_count, source"
+                    "id, title, category_name, published_at, is_featured, is_breaking, view_count, source, status"
                 )
                 .order("published_at", { ascending: false })
                 .limit(100);
@@ -66,6 +67,7 @@ export default function NotasListPage() {
     const filtered = posts.filter((p) => {
         if (filter === "featured") return p.is_featured;
         if (filter === "breaking") return p.is_breaking;
+        if (filter === "scheduled") return p.status === "scheduled";
         return true;
     });
 
@@ -90,6 +92,7 @@ export default function NotasListPage() {
                     { key: "all" as const, label: "Todas", count: posts.length },
                     { key: "featured" as const, label: "⭐ Destacadas", count: posts.filter((p) => p.is_featured).length },
                     { key: "breaking" as const, label: "🔴 Última Hora", count: posts.filter((p) => p.is_breaking).length },
+                    { key: "scheduled" as const, label: "🕐 Programadas", count: posts.filter((p) => p.status === "scheduled").length },
                 ].map((tab) => (
                     <button
                         key={tab.key}
@@ -152,16 +155,24 @@ export default function NotasListPage() {
                                         <p className="text-gray-900 font-medium line-clamp-1">
                                             {post.title}
                                         </p>
-                                        <p className="text-gray-400 text-xs mt-0.5">
-                                            {new Date(post.published_at).toLocaleDateString(
-                                                "es-MX",
-                                                {
-                                                    year: "numeric",
-                                                    month: "short",
-                                                    day: "numeric",
-                                                }
+                                        <div className="flex items-center gap-2 mt-0.5">
+                                            <p className="text-gray-400 text-xs">
+                                                {new Date(post.published_at).toLocaleDateString(
+                                                    "es-MX",
+                                                    {
+                                                        year: "numeric",
+                                                        month: "short",
+                                                        day: "numeric",
+                                                        ...(post.status === "scheduled" ? { hour: "2-digit", minute: "2-digit" } : {}),
+                                                    }
+                                                )}
+                                            </p>
+                                            {post.status === "scheduled" && (
+                                                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
+                                                    Programada
+                                                </span>
                                             )}
-                                        </p>
+                                        </div>
                                     </td>
                                     <td className="px-4 py-3">
                                         <span className="text-xs font-semibold px-2 py-1 rounded-full bg-amber-100 text-amber-800">

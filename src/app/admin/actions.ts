@@ -50,6 +50,13 @@ export async function uploadNews(formData: FormData) {
     const author_name = formData.get("author_name") as string;
     const is_featured = formData.get("is_featured") === "on";
     const is_breaking = formData.get("is_breaking") === "on";
+    const publish_mode = (formData.get("publish_mode") as string) || "now";
+    const scheduled_at = formData.get("scheduled_at") as string;
+
+    const status = publish_mode === "schedule" ? "scheduled" : "published";
+    const published_at = publish_mode === "schedule" && scheduled_at
+        ? new Date(scheduled_at).toISOString()
+        : new Date().toISOString();
 
     const imageOption = formData.get("imageOption") as string;
     let image_url = "";
@@ -74,7 +81,7 @@ export async function uploadNews(formData: FormData) {
         }
     }
 
-    const { error: insertError } = await supabaseAdmin.from("news").insert({
+    const { data: inserted, error: insertError } = await supabaseAdmin.from("news").insert({
         title,
         summary,
         content,
@@ -86,13 +93,14 @@ export async function uploadNews(formData: FormData) {
         is_breaking,
         tags: [],
         source: "supabase",
-        published_at: new Date().toISOString()
-    });
+        status,
+        published_at,
+    }).select("id").single();
 
     if (insertError) return { error: `Failed to insert news: ${insertError.message}` };
 
     revalidatePath("/", "layout");
-    return { success: true };
+    return { success: true, id: inserted.id, status };
 }
 
 export async function uploadMagazine(formData: FormData) {

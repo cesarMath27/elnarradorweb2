@@ -69,6 +69,10 @@ export default async function ArticlePage({ params }: Props) {
     notFound();
   }
 
+  if (new Date(article.published_at) > new Date()) {
+    notFound();
+  }
+
   const relatedNews = await getLatestNews(5);
   const related = relatedNews.filter((a) => a.id !== article.id).slice(0, 5);
 

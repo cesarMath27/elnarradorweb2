@@ -25,6 +25,7 @@ export type NewsArticle = {
   view_count: number;
   is_featured: boolean;
   is_breaking: boolean;
+  status: "published" | "scheduled";
   source_url: string;
   authors?: Author[];
 };
@@ -34,6 +35,7 @@ export async function getLatestNews(limit = 20, offset = 0) {
   const { data, error } = await supabase
     .from("news")
     .select("*")
+    .lte("published_at", new Date().toISOString())
     .order("published_at", { ascending: false })
     .range(offset, offset + limit - 1);
 
@@ -47,6 +49,7 @@ export async function getFeaturedNews() {
     .from("news")
     .select("*")
     .eq("is_featured", true)
+    .lte("published_at", new Date().toISOString())
     .order("published_at", { ascending: false })
     .limit(5);
 
@@ -60,6 +63,7 @@ export async function getBreakingNews() {
     .from("news")
     .select("*")
     .eq("is_breaking", true)
+    .lte("published_at", new Date().toISOString())
     .order("published_at", { ascending: false })
     .limit(3);
 
@@ -73,6 +77,7 @@ export async function getNewsByCategory(categorySlug: string, limit = 20) {
     .from("news")
     .select("*")
     .eq("category_slug", categorySlug)
+    .lte("published_at", new Date().toISOString())
     .order("published_at", { ascending: false })
     .limit(limit);
 
@@ -98,6 +103,7 @@ export async function searchNews(query: string, limit = 20) {
     .from("news")
     .select("*")
     .or(`title.ilike.%${query}%,summary.ilike.%${query}%,content.ilike.%${query}%`)
+    .lte("published_at", new Date().toISOString())
     .order("published_at", { ascending: false })
     .limit(limit);
 
@@ -121,6 +127,7 @@ export async function getMostViewed(limit = 5) {
   const { data, error } = await supabase
     .from("news")
     .select("*")
+    .lte("published_at", new Date().toISOString())
     .order("view_count", { ascending: false })
     .limit(limit);
 
