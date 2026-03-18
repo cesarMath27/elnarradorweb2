@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { deleteNews } from "@/app/admin/actions";
 
 type NewsItem = {
     id: string;
@@ -59,8 +60,11 @@ export default function NotasListPage() {
 
     const deletePost = async (id: string) => {
         if (!confirm("¿Seguro que deseas eliminar esta noticia? Esta acción no se puede deshacer.")) return;
-        const supabase = createClient();
-        await supabase.from("news").delete().eq("id", id);
+        const result = await deleteNews(id);
+        if (result.error) {
+            alert(`Error al eliminar: ${result.error}`);
+            return;
+        }
         setPosts(posts.filter((p) => p.id !== id));
     };
 

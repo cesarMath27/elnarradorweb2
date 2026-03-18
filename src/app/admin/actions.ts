@@ -103,6 +103,14 @@ export async function uploadNews(formData: FormData) {
     return { success: true, id: inserted.id, status };
 }
 
+export async function deleteNews(id: string) {
+    const supabaseAdmin = createAdminClient();
+    const { error } = await supabaseAdmin.from("news").delete().eq("id", id);
+    if (error) return { error: `Failed to delete news: ${error.message}` };
+    revalidatePath("/", "layout");
+    return { success: true };
+}
+
 export async function uploadMagazine(formData: FormData) {
     const supabaseAdmin = createAdminClient();
 
