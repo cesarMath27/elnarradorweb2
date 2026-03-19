@@ -15,6 +15,7 @@ import Sidebar from "@/components/layout/Sidebar";
 const NewsTicker = dynamic(() => import("@/components/news/NewsTicker"));
 const EditorialSection = dynamic(() => import("@/components/news/EditorialSection"));
 const MagazineShowcase = dynamic(() => import("@/components/magazines/MagazineShowcase"));
+const ServicesSection = dynamic(() => import("@/components/ServicesSection"));
 
 export const revalidate = 300;
 
@@ -86,6 +87,9 @@ export default async function HomePage() {
           </aside>
         </div>
       </div>
+
+      {/* Advertising packages */}
+      <ServicesSection />
     </>
   );
 }
