@@ -157,6 +157,41 @@ export async function updateNews(id: string, formData: FormData) {
     return { success: true };
 }
 
+/**
+ * saveMagazine — inserts a magazine record after the client has already
+ * uploaded the files directly to Supabase Storage via signed URLs.
+ * No file bytes ever pass through this server action.
+ */
+export async function saveMagazine(data: {
+    title: string;
+    description: string;
+    edition: string;
+    is_featured: boolean;
+    cover_image_url: string;
+    pdf_url: string;
+}) {
+    if (!data.title?.trim()) return { error: "El título es obligatorio." };
+    if (!data.edition?.trim()) return { error: "La edición es obligatoria." };
+    if (!data.pdf_url?.trim()) return { error: "No se recibió la URL del PDF." };
+
+    const supabaseAdmin = createAdminClient();
+    const { error: insertError } = await supabaseAdmin.from("magazines").insert({
+        title: data.title,
+        description: data.description,
+        edition: data.edition,
+        cover_image_url: data.cover_image_url,
+        pdf_url: data.pdf_url,
+        is_featured: data.is_featured,
+        published_at: new Date().toISOString(),
+    });
+
+    if (insertError) return { error: `Error al guardar la revista: ${insertError.message}` };
+
+    revalidatePath("/revistas", "layout");
+    revalidatePath("/", "layout");
+    return { success: true };
+}
+
 export async function uploadMagazine(formData: FormData) {
     const supabaseAdmin = createAdminClient();
 
