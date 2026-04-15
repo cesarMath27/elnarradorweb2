@@ -95,6 +95,68 @@ export async function uploadNews(formData: FormData) {
     return { success: true };
 }
 
+export async function deleteNews(id: string) {
+    const supabaseAdmin = createAdminClient();
+    const { error } = await supabaseAdmin.from("news").delete().eq("id", id);
+    if (error) return { error: error.message };
+    revalidatePath("/", "layout");
+    return { success: true };
+}
+
+export async function updateNews(id: string, formData: FormData) {
+    const supabaseAdmin = createAdminClient();
+
+    const title = formData.get("title") as string;
+    const summary = formData.get("summary") as string;
+    const content = formData.get("content") as string;
+    const category_name = formData.get("category_name") as string;
+    const category_slug = (formData.get("category_slug") as string).toLowerCase();
+    const author_name = formData.get("author_name") as string;
+    const is_featured = formData.get("is_featured") === "on";
+    const is_breaking = formData.get("is_breaking") === "on";
+
+    const imageOption = formData.get("imageOption") as string;
+    let image_url = (formData.get("currentImageUrl") as string) || "";
+
+    if (imageOption === "url") {
+        image_url = formData.get("imageUrl") as string;
+    } else if (imageOption === "upload") {
+        const file = formData.get("imageFile") as File;
+        if (file && file.size > 0) {
+            const fileExt = file.name.split(".").pop();
+            const fileName = `${Date.now()}-${generateSlug(title)}.${fileExt}`;
+            const filePath = `news/${fileName}`;
+            const { error: uploadError } = await supabaseAdmin.storage
+                .from("media")
+                .upload(filePath, file);
+            if (uploadError) return { error: `Image upload failed: ${uploadError.message}` };
+            const { data: publicUrl } = supabaseAdmin.storage.from("media").getPublicUrl(filePath);
+            image_url = publicUrl.publicUrl;
+        }
+    }
+
+    const { error: updateError } = await supabaseAdmin
+        .from("news")
+        .update({
+            title,
+            summary,
+            content,
+            category_slug,
+            category_name,
+            author_name,
+            image_url,
+            is_featured,
+            is_breaking,
+        })
+        .eq("id", id);
+
+    if (updateError) return { error: `Failed to update news: ${updateError.message}` };
+
+    revalidatePath("/", "layout");
+    revalidatePath(`/articulo/${id}`, "page");
+    return { success: true };
+}
+
 export async function uploadMagazine(formData: FormData) {
     const supabaseAdmin = createAdminClient();
 

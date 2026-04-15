@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { deleteNews } from "../actions";
 
 type NewsItem = {
     id: string;
@@ -58,8 +59,11 @@ export default function NotasListPage() {
 
     const deletePost = async (id: string) => {
         if (!confirm("¿Seguro que deseas eliminar esta noticia? Esta acción no se puede deshacer.")) return;
-        const supabase = createClient();
-        await supabase.from("news").delete().eq("id", id);
+        const result = await deleteNews(id);
+        if (result?.error) {
+            alert(`Error al eliminar: ${result.error}`);
+            return;
+        }
         setPosts(posts.filter((p) => p.id !== id));
     };
 
@@ -213,12 +217,20 @@ export default function NotasListPage() {
                                         {post.view_count || 0}
                                     </td>
                                     <td className="px-4 py-3 text-right">
-                                        <button
-                                            onClick={() => deletePost(post.id)}
-                                            className="text-red-400 hover:text-red-600 text-xs font-medium transition-colors cursor-pointer hover:underline"
-                                        >
-                                            Eliminar
-                                        </button>
+                                        <div className="flex items-center justify-end gap-3">
+                                            <Link
+                                                href={`/admin/notas/${post.id}/edit`}
+                                                className="text-blue-500 hover:text-blue-700 text-xs font-medium transition-colors hover:underline"
+                                            >
+                                                Editar
+                                            </Link>
+                                            <button
+                                                onClick={() => deletePost(post.id)}
+                                                className="text-red-400 hover:text-red-600 text-xs font-medium transition-colors cursor-pointer hover:underline"
+                                            >
+                                                Eliminar
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
