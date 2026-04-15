@@ -19,15 +19,17 @@ type UploadState = {
     error?: string;
 };
 
-/** Requests a signed upload URL from our API route then streams the file
- *  directly from the browser to Supabase Storage.
- *  Returns the public URL on success, or throws on error. */
+/**
+ * Obtiene un token firmado del servidor y luego usa el cliente JS de Supabase
+ * con uploadToSignedUrl, que internamente usa el protocolo TUS (subida en chunks).
+ * TUS no tiene el límite de ~50 MB del PUT estándar y soporta archivos de 200 MB+.
+ */
 async function uploadFileDirect(
     file: File,
     storagePath: string,
     onProgress: (pct: number) => void
 ): Promise<string> {
-    // 1. Get signed upload URL from server
+    // 1. Pedir token firmado al servidor (no expone la service-role key al browser)
     const res = await fetch("/api/upload-sign", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -36,27 +38,30 @@ async function uploadFileDirect(
     const json = await res.json();
     if (!res.ok || json.error) throw new Error(json.error ?? "No se pudo obtener la URL firmada.");
 
-    const { signedUrl } = json as { signedUrl: string; token: string; path: string };
+    const { token, path } = json as { signedUrl: string; token: string; path: string };
 
-    // 2. Upload directly to Supabase via XHR so we get progress events
-    await new Promise<void>((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open("PUT", signedUrl);
-        xhr.setRequestHeader("Content-Type", file.type || "application/octet-stream");
-        xhr.upload.onprogress = (e) => {
-            if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100));
-        };
-        xhr.onload = () => {
-            if (xhr.status >= 200 && xhr.status < 300) resolve();
-            else reject(new Error(`Storage respondió ${xhr.status}: ${xhr.responseText}`));
-        };
-        xhr.onerror = () => reject(new Error("Error de red al subir el archivo."));
-        xhr.send(file);
-    });
-
-    // 3. Build public URL (same pattern as the admin client uses)
+    // 2. Subir usando el cliente de Supabase con TUS (chunks automáticos para archivos grandes)
+    onProgress(1); // indicar que empezó
     const supabase = createClient();
-    const { data } = supabase.storage.from("media").getPublicUrl(storagePath);
+
+    const { error } = await (supabase.storage.from("media") as any).uploadToSignedUrl(
+        path,
+        token,
+        file,
+        {
+            contentType: file.type || "application/octet-stream",
+            onUploadProgress: (progress: { loaded: number; total: number }) => {
+                if (progress.total > 0) {
+                    onProgress(Math.round((progress.loaded / progress.total) * 100));
+                }
+            },
+        }
+    );
+
+    if (error) throw new Error((error as Error).message ?? "Error al subir el archivo.");
+
+    // 3. Devolver la URL pública
+    const { data } = supabase.storage.from("media").getPublicUrl(path);
     return data.publicUrl;
 }
 
