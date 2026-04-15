@@ -165,31 +165,45 @@ export async function uploadMagazine(formData: FormData) {
     const edition = formData.get("edition") as string;
     const is_featured = formData.get("is_featured") === "on";
 
+    if (!title?.trim()) return { error: "El título es obligatorio." };
+    if (!edition?.trim()) return { error: "La edición es obligatoria." };
+
     const coverFile = formData.get("coverImage") as File;
     const pdfFile = formData.get("pdfFile") as File;
+
+    // PDF is required
+    if (!pdfFile || pdfFile.size === 0) {
+        return { error: "Debes seleccionar un archivo PDF." };
+    }
 
     let cover_image_url = "";
     let pdf_url = "";
 
+    // Upload cover image (optional)
     if (coverFile && coverFile.size > 0) {
-        const fileExt = coverFile.name.split('.').pop();
+        const fileExt = coverFile.name.split(".").pop();
         const fileName = `${Date.now()}-cover-${generateSlug(title)}.${fileExt}`;
         const filePath = `magazines/${fileName}`;
-        const { error } = await supabaseAdmin.storage.from("media").upload(filePath, coverFile);
-        if (error) return { error: `Cover upload failed: ${error.message}` };
+        const { error } = await supabaseAdmin.storage
+            .from("media")
+            .upload(filePath, coverFile, { contentType: coverFile.type || "image/jpeg" });
+        if (error) return { error: `Error al subir la portada: ${error.message}` };
         const { data: publicUrl } = supabaseAdmin.storage.from("media").getPublicUrl(filePath);
         cover_image_url = publicUrl.publicUrl;
     }
 
-    if (pdfFile && pdfFile.size > 0) {
-        const fileExt = pdfFile.name.split('.').pop();
-        const fileName = `${Date.now()}-pdf-${generateSlug(title)}.${fileExt}`;
-        const filePath = `magazines/${fileName}`;
-        const { error } = await supabaseAdmin.storage.from("media").upload(filePath, pdfFile);
-        if (error) return { error: `PDF upload failed: ${error.message}` };
-        const { data: publicUrl } = supabaseAdmin.storage.from("media").getPublicUrl(filePath);
-        pdf_url = publicUrl.publicUrl;
-    }
+    // Upload PDF (required)
+    const pdfExt = pdfFile.name.split(".").pop();
+    const pdfFileName = `${Date.now()}-pdf-${generateSlug(title)}.${pdfExt}`;
+    const pdfFilePath = `magazines/${pdfFileName}`;
+    const { error: pdfError } = await supabaseAdmin.storage
+        .from("media")
+        .upload(pdfFilePath, pdfFile, { contentType: "application/pdf" });
+    if (pdfError) return { error: `Error al subir el PDF: ${pdfError.message}` };
+    const { data: pdfPublicUrl } = supabaseAdmin.storage.from("media").getPublicUrl(pdfFilePath);
+    pdf_url = pdfPublicUrl.publicUrl;
+
+    if (!pdf_url) return { error: "No se pudo obtener la URL del PDF." };
 
     const { error: insertError } = await supabaseAdmin.from("magazines").insert({
         title,
@@ -198,10 +212,10 @@ export async function uploadMagazine(formData: FormData) {
         cover_image_url,
         pdf_url,
         is_featured,
-        published_at: new Date().toISOString()
+        published_at: new Date().toISOString(),
     });
 
-    if (insertError) return { error: `Failed to insert magazine: ${insertError.message}` };
+    if (insertError) return { error: `Error al guardar la revista: ${insertError.message}` };
 
     revalidatePath("/revistas", "layout");
     revalidatePath("/", "layout");

@@ -14,7 +14,11 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "upload.wikimedia.org" },
     ],
   },
-  // ⚡️ AÑADE ESTO PARA SOLUCIONAR EL ERROR DE DESPLIEGUE:
+  experimental: {
+    // Permite subir archivos grandes (PDFs) desde server actions.
+    // Por defecto Next.js limita el body a 1 MB, lo que bloquea cualquier PDF > 1 MB.
+    serverActionsBodySizeLimit: "52mb",
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },
