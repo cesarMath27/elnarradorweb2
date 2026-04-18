@@ -3,24 +3,67 @@
 import { useState, useRef } from "react";
 import { uploadMagazine } from "../../actions";
 
+async function extractPdfFirstPageAsJpeg(file: File): Promise<Blob | null> {
+    try {
+        const pdfjsLib = await import("pdfjs-dist");
+        pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+            "pdfjs-dist/build/pdf.worker.min.mjs",
+            import.meta.url
+        ).href;
+
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const page = await pdf.getPage(1);
+        const viewport = page.getViewport({ scale: 1.5 });
+        const canvas = document.createElement("canvas");
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return null;
+        await page.render({ canvasContext: ctx, viewport }).promise;
+        return await new Promise<Blob | null>((resolve) => {
+            canvas.toBlob((blob) => resolve(blob), "image/jpeg", 0.88);
+        });
+    } catch {
+        return null;
+    }
+}
+
 export default function NuevaRevistaPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
     const [coverPreview, setCoverPreview] = useState("");
     const [pdfName, setPdfName] = useState("");
+    const [extractedCoverBlob, setExtractedCoverBlob] = useState<Blob | null>(null);
+    const [coverSource, setCoverSource] = useState<"none" | "manual" | "extracted">("none");
+    const [extracting, setExtracting] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
 
     const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            setExtractedCoverBlob(null);
             setCoverPreview(URL.createObjectURL(file));
+            setCoverSource("manual");
         }
     };
 
-    const handlePdfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handlePdfChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        setPdfName(file?.name || "");
+        if (!file) return;
+        setPdfName(file.name);
+
+        if (coverSource !== "manual") {
+            setExtracting(true);
+            const blob = await extractPdfFirstPageAsJpeg(file);
+            setExtracting(false);
+            if (blob) {
+                setExtractedCoverBlob(blob);
+                setCoverPreview(URL.createObjectURL(blob));
+                setCoverSource("extracted");
+            }
+        }
     };
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -30,6 +73,14 @@ export default function NuevaRevistaPage() {
         setSuccess(false);
 
         const formData = new FormData(e.currentTarget);
+
+        if (coverSource === "extracted" && extractedCoverBlob) {
+            formData.set(
+                "coverImage",
+                new File([extractedCoverBlob], "cover-extracted.jpg", { type: "image/jpeg" })
+            );
+        }
+
         const result = await uploadMagazine(formData);
 
         if (result?.error) {
@@ -39,6 +90,8 @@ export default function NuevaRevistaPage() {
             formRef.current?.reset();
             setCoverPreview("");
             setPdfName("");
+            setExtractedCoverBlob(null);
+            setCoverSource("none");
         }
         setLoading(false);
     }
@@ -172,14 +225,26 @@ export default function NuevaRevistaPage() {
                                     onChange={handleCoverChange}
                                     className="hidden"
                                 />
-                                {coverPreview ? (
+                                {extracting ? (
+                                    <div>
+                                        <span className="text-3xl">⏳</span>
+                                        <p className="text-gray-500 text-sm mt-2">Extrayendo portada...</p>
+                                    </div>
+                                ) : coverPreview ? (
                                     <div className="flex flex-col items-center">
                                         <img
                                             src={coverPreview}
                                             alt="Preview"
                                             className="w-20 h-28 object-cover rounded shadow-sm"
                                         />
-                                        <p className="text-gray-400 text-xs mt-2">Clic para cambiar</p>
+                                        {coverSource === "extracted" && (
+                                            <p className="text-blue-600 text-xs mt-1 font-medium">
+                                                Extraída automáticamente del PDF
+                                            </p>
+                                        )}
+                                        {coverSource === "manual" && (
+                                            <p className="text-gray-400 text-xs mt-2">Clic para cambiar</p>
+                                        )}
                                     </div>
                                 ) : (
                                     <div>
