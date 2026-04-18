@@ -3,15 +3,29 @@
 import { useState, useRef } from "react";
 import { uploadMagazine } from "../../actions";
 
+const PDFJS_CDN = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38";
+
 async function extractPdfFirstPageAsJpeg(file: File): Promise<Blob | null> {
     if (typeof window === "undefined") return null;
     try {
-        // webpackIgnore prevents webpack from bundling this — loaded from CDN at runtime in the browser only
-        // @ts-ignore
-        const pdfjsLib = await import(/* webpackIgnore: true */ "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs");
-        pdfjsLib.GlobalWorkerOptions.workerSrc =
-            "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
+        const g = globalThis as any;
+        if (!g.__pdfjsLib) {
+            await new Promise<void>((resolve, reject) => {
+                const s = document.createElement("script");
+                s.type = "module";
+                // String content is invisible to webpack — no import() to analyze
+                s.textContent =
+                    `import*as p from"${PDFJS_CDN}/pdf.min.mjs";` +
+                    `p.GlobalWorkerOptions.workerSrc="${PDFJS_CDN}/pdf.worker.min.mjs";` +
+                    `globalThis.__pdfjsLib=p;` +
+                    `document.dispatchEvent(new CustomEvent("__pdfjs_ready"));`;
+                document.addEventListener("__pdfjs_ready", () => resolve(), { once: true });
+                s.onerror = () => reject(new Error("pdfjs load failed"));
+                document.head.appendChild(s);
+            });
+        }
 
+        const pdfjsLib = g.__pdfjsLib;
         const arrayBuffer = await file.arrayBuffer();
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
         const page = await pdf.getPage(1);
@@ -36,17 +50,16 @@ export default function NuevaRevistaPage() {
     const [success, setSuccess] = useState(false);
     const [coverPreview, setCoverPreview] = useState("");
     const [pdfName, setPdfName] = useState("");
-    const [extractedCoverBlob, setExtractedCoverBlob] = useState<Blob | null>(null);
-    const [coverSource, setCoverSource] = useState<"none" | "manual" | "extracted">("none");
+    const [coverIsExtracted, setCoverIsExtracted] = useState(false);
     const [extracting, setExtracting] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
+    const coverInputRef = useRef<HTMLInputElement>(null);
 
     const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            setExtractedCoverBlob(null);
             setCoverPreview(URL.createObjectURL(file));
-            setCoverSource("manual");
+            setCoverIsExtracted(false);
         }
     };
 
@@ -55,15 +68,20 @@ export default function NuevaRevistaPage() {
         if (!file) return;
         setPdfName(file.name);
 
-        if (coverSource !== "manual") {
-            setExtracting(true);
-            const blob = await extractPdfFirstPageAsJpeg(file);
-            setExtracting(false);
-            if (blob) {
-                setExtractedCoverBlob(blob);
-                setCoverPreview(URL.createObjectURL(blob));
-                setCoverSource("extracted");
-            }
+        // Skip extraction if a manual cover is already selected
+        if (coverInputRef.current?.files?.length) return;
+
+        setExtracting(true);
+        const blob = await extractPdfFirstPageAsJpeg(file);
+        setExtracting(false);
+
+        if (blob && coverInputRef.current) {
+            const extractedFile = new File([blob], "cover-extracted.jpg", { type: "image/jpeg" });
+            const dt = new DataTransfer();
+            dt.items.add(extractedFile);
+            coverInputRef.current.files = dt.files;
+            setCoverPreview(URL.createObjectURL(blob));
+            setCoverIsExtracted(true);
         }
     };
 
@@ -74,14 +92,6 @@ export default function NuevaRevistaPage() {
         setSuccess(false);
 
         const formData = new FormData(e.currentTarget);
-
-        if (coverSource === "extracted" && extractedCoverBlob) {
-            formData.set(
-                "coverImage",
-                new File([extractedCoverBlob], "cover-extracted.jpg", { type: "image/jpeg" })
-            );
-        }
-
         const result = await uploadMagazine(formData);
 
         if (result?.error) {
@@ -91,8 +101,7 @@ export default function NuevaRevistaPage() {
             formRef.current?.reset();
             setCoverPreview("");
             setPdfName("");
-            setExtractedCoverBlob(null);
-            setCoverSource("none");
+            setCoverIsExtracted(false);
         }
         setLoading(false);
     }
@@ -223,6 +232,7 @@ export default function NuevaRevistaPage() {
                                     type="file"
                                     name="coverImage"
                                     accept="image/*"
+                                    ref={coverInputRef}
                                     onChange={handleCoverChange}
                                     className="hidden"
                                 />
@@ -238,12 +248,11 @@ export default function NuevaRevistaPage() {
                                             alt="Preview"
                                             className="w-20 h-28 object-cover rounded shadow-sm"
                                         />
-                                        {coverSource === "extracted" && (
+                                        {coverIsExtracted ? (
                                             <p className="text-blue-600 text-xs mt-1 font-medium">
                                                 Extraída automáticamente del PDF
                                             </p>
-                                        )}
-                                        {coverSource === "manual" && (
+                                        ) : (
                                             <p className="text-gray-400 text-xs mt-2">Clic para cambiar</p>
                                         )}
                                     </div>
