@@ -1,6 +1,18 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      // pdfjs-dist has browser-specific module-level code that crashes in
+      // Cloudflare Workers runtime. Replace it with an empty stub server-side.
+      config.resolve.alias["pdfjs-dist"] = path.resolve(
+        __dirname,
+        "src/lib/pdf-noop.js"
+      );
+    }
+    return config;
+  },
   images: {
     unoptimized: true,
     remotePatterns: [
