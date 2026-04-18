@@ -4,10 +4,13 @@ import { useState, useRef } from "react";
 import { uploadMagazine } from "../../actions";
 
 async function extractPdfFirstPageAsJpeg(file: File): Promise<Blob | null> {
+    if (typeof window === "undefined") return null;
     try {
-        const pdfjsLib = await import("pdfjs-dist");
+        // webpackIgnore prevents webpack from bundling this — loaded from CDN at runtime in the browser only
+        // @ts-ignore
+        const pdfjsLib = await import(/* webpackIgnore: true */ "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs");
         pdfjsLib.GlobalWorkerOptions.workerSrc =
-            `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+            "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
 
         const arrayBuffer = await file.arrayBuffer();
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
