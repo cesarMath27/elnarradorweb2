@@ -14,7 +14,13 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "upload.wikimedia.org" },
     ],
   },
-  // ⚡️ AÑADE ESTO PARA SOLUCIONAR EL ERROR DE DESPLIEGUE:
+  experimental: {
+    serverActions: {
+      // Allow server actions from the production domain when behind Cloudflare
+      allowedOrigins: ["elnarradordemexico.com", "*.elnarradordemexico.com"],
+      bodySizeLimit: "10mb",
+    },
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },
