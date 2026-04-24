@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import { uploadNews } from "../../actions";
 import { createClient } from "@/lib/supabase/client";
 
 /* ───── categories ───── */
@@ -210,7 +209,10 @@ export default function NuevaNotaPage() {
             formData.set("imageFile", imageFile);
         }
 
-        const result = await uploadNews(formData);
+        const result = await fetch("/api/admin/news", {
+            method: "POST",
+            body: formData,
+        }).then((r) => r.json());
 
         if (result?.error) {
             setError(result.error);

@@ -2,7 +2,6 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { updateNews } from "../../../actions";
 import { createClient } from "@/lib/supabase/client";
 
 const categories = [
@@ -140,7 +139,10 @@ export default function EditarNotaPage() {
             formData.set("imageFile", imageFile);
         }
 
-        const result = await updateNews(formData);
+        const result = await fetch(`/api/admin/news/${id}`, {
+            method: "PUT",
+            body: formData,
+        }).then((r) => r.json());
 
         if (result?.error) {
             setError(result.error);
