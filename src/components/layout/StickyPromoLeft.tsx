@@ -5,7 +5,7 @@ export default function StickyPromoLeft() {
     <div className="hidden 2xl:block fixed left-2 top-1/2 -translate-y-1/2 z-20 w-[140px]">
       <div className="relative w-full aspect-[640/1632]">
         <Image
-          src="/images/promo-lateral.jpg"
+          src="/images/promo-lateral.jpeg"
           alt="Promoción"
           fill
           sizes="140px"
