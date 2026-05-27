@@ -10,7 +10,7 @@ import HeroBanner from "@/components/news/HeroBanner";
 import FeaturedHero from "@/components/news/FeaturedHero";
 import ArticleGrid from "@/components/news/ArticleGrid";
 import Sidebar from "@/components/layout/Sidebar";
-import StickyPromoLeft from "@/components/layout/StickyPromoLeft";
+import PromoLeft from "@/components/layout/PromoLeft";
 
 // Dynamic imports — reduce initial JS bundle for below-fold content
 const NewsTicker = dynamic(() => import("@/components/news/NewsTicker"));
@@ -35,9 +35,6 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* Sticky lateral promo banner (visible on very wide screens) */}
-      <StickyPromoLeft />
-
       {/* Brand banner with Mexican landscapes */}
       <HeroBanner />
 
@@ -46,6 +43,11 @@ export default async function HomePage() {
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
+          {/* Left promo column */}
+          <aside className="w-full lg:w-44 shrink-0">
+            <PromoLeft />
+          </aside>
+
           {/* Main content */}
           <div className="flex-1 min-w-0">
             {heroArticle && (
