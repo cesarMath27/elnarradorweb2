@@ -10,6 +10,7 @@ import HeroBanner from "@/components/news/HeroBanner";
 import FeaturedHero from "@/components/news/FeaturedHero";
 import ArticleGrid from "@/components/news/ArticleGrid";
 import Sidebar from "@/components/layout/Sidebar";
+import StickyPromoLeft from "@/components/layout/StickyPromoLeft";
 
 // Dynamic imports — reduce initial JS bundle for below-fold content
 const NewsTicker = dynamic(() => import("@/components/news/NewsTicker"));
@@ -34,6 +35,9 @@ export default async function HomePage() {
 
   return (
     <>
+      {/* Sticky lateral promo banner (visible on very wide screens) */}
+      <StickyPromoLeft />
+
       {/* Brand banner with Mexican landscapes */}
       <HeroBanner />
 
