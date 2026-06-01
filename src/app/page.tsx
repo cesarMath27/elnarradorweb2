@@ -11,6 +11,8 @@ import FeaturedHero from "@/components/news/FeaturedHero";
 import ArticleGrid from "@/components/news/ArticleGrid";
 import Sidebar from "@/components/layout/Sidebar";
 import PromoLeft from "@/components/layout/PromoLeft";
+import AdUnit from "@/components/ads/AdUnit";
+import { ADSENSE_SLOTS } from "@/lib/ads/config";
 
 // Dynamic imports — reduce initial JS bundle for below-fold content
 const NewsTicker = dynamic(() => import("@/components/news/NewsTicker"));
@@ -66,6 +68,9 @@ export default async function HomePage() {
               <ArticleGrid articles={firstHalf} />
             </section>
 
+            {/* Anuncio entre secciones */}
+            <AdUnit slot={ADSENSE_SLOTS.home} />
+
             {/* Editorial B&W section */}
             <EditorialSection />
 
@@ -89,6 +94,7 @@ export default async function HomePage() {
             {featured.length > 1 && (
               <Sidebar title="Destacadas" articles={featured.slice(1)} />
             )}
+            <AdUnit slot={ADSENSE_SLOTS.sidebar} />
           </aside>
         </div>
       </div>
