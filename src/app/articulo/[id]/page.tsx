@@ -5,6 +5,8 @@ import Sidebar from "@/components/layout/Sidebar";
 import CategoryBadge from "@/components/news/CategoryBadge";
 import ShareButtons from "./ShareButtons";
 import { ArticleJsonLd } from "@/components/seo/JsonLd";
+import AdUnit from "@/components/ads/AdUnit";
+import { ADSENSE_SLOTS } from "@/lib/ads/config";
 import { notFound } from "next/navigation";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://elnarradordemexico.com";
@@ -161,6 +163,13 @@ export default async function ArticlePage({ params }: Props) {
             dangerouslySetInnerHTML={{ __html: article.content || "" }}
           />
 
+          {/* Anuncio dentro del artículo */}
+          <AdUnit
+            slot={ADSENSE_SLOTS.article}
+            format="fluid"
+            layout="in-article"
+          />
+
           {/* Tags */}
           {article.tags && article.tags.length > 0 && (
             <div className="mt-8 pt-6 border-t border-border">
@@ -196,8 +205,9 @@ export default async function ArticlePage({ params }: Props) {
         </article>
 
         {/* Sidebar */}
-        <div className="w-full lg:w-80 shrink-0">
+        <div className="w-full lg:w-80 shrink-0 space-y-6">
           <Sidebar title="Noticias Recientes" articles={related} />
+          <AdUnit slot={ADSENSE_SLOTS.sidebar} />
         </div>
       </div>
     </div>

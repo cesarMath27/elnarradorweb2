@@ -4,6 +4,8 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { WebsiteJsonLd } from "@/components/seo/JsonLd";
+import AdSenseScript from "@/components/ads/AdSenseScript";
+import { ADSENSE_CLIENT_ID } from "@/lib/ads/config";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://elnarradordemexico.com";
 
@@ -75,6 +77,10 @@ export const metadata: Metadata = {
   alternates: {
     canonical: SITE_URL,
   },
+  other: {
+    // Verificación de la cuenta de Google AdSense
+    "google-adsense-account": ADSENSE_CLIENT_ID,
+  },
   verification: {
     // Add your Google Search Console verification code here
     // google: "your-google-verification-code",
@@ -127,6 +133,7 @@ async function AdminLayoutGuard({ children }: { children: React.ReactNode }) {
 
   return (
     <>
+      <AdSenseScript />
       <Navbar />
       <main className="min-h-screen pt-[120px]">{children}</main>
       <Footer />
