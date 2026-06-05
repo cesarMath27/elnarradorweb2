@@ -27,3 +27,16 @@ export const ADSENSE_SLOTS = {
 
 /** AdSense se considera activo siempre que haya un ID de editor configurado. */
 export const isAdsEnabled = Boolean(ADSENSE_CLIENT_ID);
+
+/**
+ * Configuración de "Subscribe with Google" (Reader Revenue Manager).
+ *
+ * Habilita el aviso de suscripción/acceso de Google News sobre los artículos.
+ * El ID de producto se obtiene en el panel de Reader Revenue Manager
+ * (Publisher Center). Igual que AdSense, no usa variables de entorno para que
+ * funcione en producción sin configuración adicional.
+ */
+export const SWG_PRODUCT_ID = "CAowjtDgCw:openaccess";
+
+/** SWG se considera activo siempre que haya un ID de producto configurado. */
+export const isSwgEnabled = Boolean(SWG_PRODUCT_ID);

@@ -3,6 +3,7 @@ import Image from "next/image";
 
 const footerLinks = [
   { name: "Política de Privacidad", href: "/privacidad" },
+  { name: "Términos y Condiciones", href: "/terminos" },
   { name: "Código de Ética", href: "/etica" },
   { name: "Contacto", href: "/contacto" },
 ];

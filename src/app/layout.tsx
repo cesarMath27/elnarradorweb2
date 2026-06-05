@@ -5,6 +5,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { WebsiteJsonLd } from "@/components/seo/JsonLd";
 import AdSenseScript from "@/components/ads/AdSenseScript";
+import SwgScript from "@/components/ads/SwgScript";
 import { ADSENSE_CLIENT_ID } from "@/lib/ads/config";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://elnarradordemexico.com";
@@ -134,6 +135,7 @@ async function AdminLayoutGuard({ children }: { children: React.ReactNode }) {
   return (
     <>
       <AdSenseScript />
+      <SwgScript />
       <Navbar />
       <main className="min-h-screen pt-[120px]">{children}</main>
       <Footer />
