@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# El Narrador de México — Sitio web
 
-## Getting Started
+Sitio editorial de noticias construido con Next.js. Una sola aplicación sirve
+el sitio público (noticias, revistas, búsqueda) y el panel de administración
+en `/admin`.
 
-First, run the development server:
+- **Producción:** https://elnarradordemexico.com
+- **Stack:** Next.js 15 (App Router) · React 18 · TypeScript · Tailwind CSS v4 · Supabase · Cloudflare (vía OpenNext)
+
+## Requisitos
+
+- Node.js 20+
+- npm
+- Acceso al proyecto de Supabase (URL y claves)
+
+## Arranque local
 
 ```bash
+# 1. Instalar dependencias
+npm install
+
+# 2. Configurar variables de entorno
+cp .env.example .env.local
+#    ...y rellenar los valores (ver comentarios dentro del archivo)
+
+# 3. Levantar el servidor de desarrollo
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+El sitio queda en http://localhost:3000 y el panel en http://localhost:3000/admin.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Script | Qué hace |
+|---|---|
+| `npm run dev` | Servidor de desarrollo |
+| `npm run build` | Build para Cloudflare con OpenNext (el que se despliega) |
+| `npm run build:next` | Build estándar de Next (verificación rápida de lint + tipos) |
+| `npm run lint` | ESLint sobre `src/` |
+| `npm run typecheck` | Verificación de tipos con `tsc --noEmit` |
+| `npm run preview` | Build + preview local con Wrangler |
+| `npm run deploy` | Build + deploy a Cloudflare Pages |
 
-## Learn More
+## Estructura del proyecto
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+├── app/          # Rutas, layouts, metadata, server actions (App Router)
+│   ├── admin/    # Panel de administración (protegido por Supabase Auth)
+│   └── api/      # Route handlers (p.ej. /api/migrate)
+├── components/   # UI reutilizable del sitio público (news, magazines, seo, ads, ui)
+├── lib/          # Acceso a datos: clientes Supabase, queries, migración WordPress
+└── middleware.ts # Propaga el pathname y refresca la sesión de Supabase
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Las carpetas `deploy/`, `deploy-pages/`, `deploy_me/`, `.next/` y `.open-next/`
+son salida generada — no se editan ni se commitean.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Documentación
 
-## Deploy on Vercel
+| Documento | Contenido |
+|---|---|
+| [`DEPLOYMENT.md`](./DEPLOYMENT.md) | Cómo desplegar a Cloudflare, secrets y troubleshooting |
+| [`docs/DATABASE.md`](./docs/DATABASE.md) | Esquema de Supabase: tablas, storage, RLS |
+| [`CLAUDE.md`](./CLAUDE.md) | Contexto general del proyecto (también útil para humanos) |
+| `.env.example` | Variables de entorno requeridas y su propósito |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Dominios de contenido
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Noticias** (`news`): notas con categoría, autor, imagen destacada y flags de
+  destacada/última hora. Se crean desde `/admin/notas/nueva`.
+- **Revistas** (`magazines`): ediciones en PDF con portada. Se crean desde
+  `/admin/revistas/nueva`.
+- **Categorías**: fijas en código (`src/app/[category]/page.tsx`) y en la tabla
+  `categories`.
+
+La base de datos Supabase es compartida con la app móvil de El Narrador;
+ver [`docs/DATABASE.md`](./docs/DATABASE.md) antes de tocar el esquema.

@@ -45,8 +45,9 @@ export default function UsuariosPage() {
     // Determine current user's role
     const { data: { user } } = await supabase.auth.getUser();
     if (user?.email) {
+      const userEmail = user.email.toLowerCase();
       const current = (data as AdminUser[]).find(
-        (u) => u.email === user.email.toLowerCase()
+        (u) => u.email === userEmail
       );
       setCurrentUserRole(current?.role ?? null);
     }

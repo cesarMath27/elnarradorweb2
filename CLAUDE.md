@@ -92,9 +92,9 @@ Do not copy secrets into documentation. Only document names and purpose.
 - `src/app/admin/layout.tsx` enforces auth and optional `ADMIN_EMAIL` matching.
 
 ## Important Warnings
-- `next.config.ts` currently sets `eslint.ignoreDuringBuilds = true`.
-- `next.config.ts` currently sets `typescript.ignoreBuildErrors = true`.
-- Treat successful builds cautiously because type and lint failures may be hidden.
+- Builds enforce ESLint and TypeScript (`npm run lint` / `npm run typecheck` run the same checks).
+- Admin server actions in `src/app/admin/actions.ts` must keep calling `requireAdmin()`: they are public POST endpoints that use the service-role client.
+- The Supabase database is shared with the El Narrador mobile app. See `docs/DATABASE.md` before changing schema or RPCs.
 
 ## Safe Change Guidance
 - Put route and page behavior in `src/app/`.

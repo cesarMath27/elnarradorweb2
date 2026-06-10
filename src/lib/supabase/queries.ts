@@ -163,7 +163,12 @@ export async function getAuthorsByNewsId(newsId: string) {
     .eq("news_id", newsId);
 
   if (error) throw error;
-  return (data ?? []).map((row: { authors: Author }) => row.authors);
+  // Supabase tipa la relación como arreglo pero en runtime devuelve un objeto
+  // para relaciones a-uno; aceptar ambas formas evita depender de ese detalle.
+  const rows = (data ?? []) as unknown as { authors: Author | Author[] | null }[];
+  return rows.flatMap((row) =>
+    Array.isArray(row.authors) ? row.authors : row.authors ? [row.authors] : []
+  );
 }
 
 export async function getNewsWithAuthors(newsId: string) {

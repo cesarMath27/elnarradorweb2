@@ -2,7 +2,6 @@ import dynamic from "next/dynamic";
 import {
   getLatestNews,
   getFeaturedNews,
-  getBreakingNews,
   getMostViewed,
 } from "@/lib/supabase/queries";
 import { getMagazines } from "@/lib/supabase/magazines";
@@ -22,10 +21,9 @@ const MagazineShowcase = dynamic(() => import("@/components/magazines/MagazineSh
 export const revalidate = 300;
 
 export default async function HomePage() {
-  const [latest, featured, _breaking, mostViewed, magazines] = await Promise.all([
+  const [latest, featured, mostViewed, magazines] = await Promise.all([
     getLatestNews(12),
     getFeaturedNews(),
-    getBreakingNews(),
     getMostViewed(5),
     getMagazines(3),
   ]);
