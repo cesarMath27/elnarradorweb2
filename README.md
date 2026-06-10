@@ -79,7 +79,8 @@ ver [`docs/DATABASE.md`](./docs/DATABASE.md) antes de tocar el esquema.
 
 ## Videos de YouTube en la portada
 
-La portada puede mostrar los últimos videos del canal de YouTube. Se configura
-en `src/lib/youtube/config.ts` poniendo el ID del canal (empieza con `UC...`);
-no requiere API key (usa el feed RSS público del canal). Con el ID vacío la
-sección no se muestra.
+La portada muestra los últimos videos del canal de YouTube. Se configura en
+`src/lib/youtube/config.ts` con el handle del canal (`@ElNarradordeMéxico`) o,
+de forma más confiable, con el ID interno (`UC...`, visible en YouTube
+Studio). No requiere API key (usa el feed RSS público del canal). Sin canal
+configurado, o si YouTube no responde, la sección simplemente no se muestra.

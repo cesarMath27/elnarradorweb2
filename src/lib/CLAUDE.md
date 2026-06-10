@@ -35,10 +35,10 @@
 
 ## YouTube Integration
 - `src/lib/youtube/config.ts`
-  - `YOUTUBE_CHANNEL_ID` and `YOUTUBE_CHANNEL_URL` constants (no env vars, same pattern as ads config)
-  - With an empty channel id the homepage video section renders nothing
+  - `YOUTUBE_CHANNEL` (handle), optional `YOUTUBE_CHANNEL_ID` (UC..., skips handle resolution) and `YOUTUBE_CHANNEL_URL` constants (no env vars, same pattern as ads config)
+  - With both channel values empty the homepage video section renders nothing
 - `src/lib/youtube/feed.ts`
-  - `getLatestVideos(limit)` reads the channel's public RSS feed (no API key)
+  - `getLatestVideos(limit)` resolves the channel id from the handle (cached 24h) and reads the channel's public RSS feed (no API key)
   - Returns `[]` on any failure so the homepage never breaks because of YouTube
 
 ## WordPress Migration Utilities

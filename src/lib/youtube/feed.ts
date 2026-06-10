@@ -1,4 +1,4 @@
-import { YOUTUBE_CHANNEL_ID } from "./config";
+import { YOUTUBE_CHANNEL, YOUTUBE_CHANNEL_ID } from "./config";
 
 export type YouTubeVideo = {
   id: string;
@@ -17,18 +17,48 @@ function decodeXmlEntities(text: string): string {
     .replace(/&amp;/g, "&");
 }
 
+const BROWSER_HEADERS = {
+  "user-agent":
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+  "accept-language": "es-MX,es;q=0.9",
+};
+
+/**
+ * Resolves the internal channel id (UC...). Uses YOUTUBE_CHANNEL_ID directly
+ * when configured; otherwise fetches the channel page for the handle and
+ * extracts the id from its metadata (cached for a day).
+ */
+async function resolveChannelId(): Promise<string | null> {
+  if (YOUTUBE_CHANNEL_ID) return YOUTUBE_CHANNEL_ID;
+  if (!YOUTUBE_CHANNEL) return null;
+
+  const res = await fetch(`https://www.youtube.com/${encodeURI(YOUTUBE_CHANNEL)}`, {
+    headers: BROWSER_HEADERS,
+    next: { revalidate: 86400 },
+  });
+  if (!res.ok) return null;
+
+  const html = await res.text();
+  return (
+    html.match(/"channelId":"(UC[\w-]{22})"/)?.[1] ??
+    html.match(/channel\/(UC[\w-]{22})/)?.[1] ??
+    null
+  );
+}
+
 /**
  * Latest uploads from the channel via YouTube's public RSS feed.
  * No API key required. Returns [] on any failure or when no channel is
  * configured, so the homepage never breaks because of YouTube.
  */
 export async function getLatestVideos(limit = 3): Promise<YouTubeVideo[]> {
-  if (!YOUTUBE_CHANNEL_ID) return [];
-
   try {
+    const channelId = await resolveChannelId();
+    if (!channelId) return [];
+
     const res = await fetch(
-      `https://www.youtube.com/feeds/videos.xml?channel_id=${YOUTUBE_CHANNEL_ID}`,
-      { next: { revalidate: 1800 } }
+      `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`,
+      { headers: BROWSER_HEADERS, next: { revalidate: 1800 } }
     );
     if (!res.ok) return [];
 
