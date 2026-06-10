@@ -76,3 +76,11 @@ son salida generada — no se editan ni se commitean.
 
 La base de datos Supabase es compartida con la app móvil de El Narrador;
 ver [`docs/DATABASE.md`](./docs/DATABASE.md) antes de tocar el esquema.
+
+## Videos de YouTube en la portada
+
+La portada muestra los últimos videos del canal de YouTube. Se configura en
+`src/lib/youtube/config.ts` con el handle del canal (`@ElNarradordeMéxico`) o,
+de forma más confiable, con el ID interno (`UC...`, visible en YouTube
+Studio). No requiere API key (usa el feed RSS público del canal). Sin canal
+configurado, o si YouTube no responde, la sección simplemente no se muestra.

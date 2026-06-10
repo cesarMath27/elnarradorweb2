@@ -1,4 +1,5 @@
 import dynamic from "next/dynamic";
+import { Suspense } from "react";
 import {
   getLatestNews,
   getFeaturedNews,
@@ -9,7 +10,7 @@ import HeroBanner from "@/components/news/HeroBanner";
 import FeaturedHero from "@/components/news/FeaturedHero";
 import ArticleGrid from "@/components/news/ArticleGrid";
 import Sidebar from "@/components/layout/Sidebar";
-import PromoLeft from "@/components/layout/PromoLeft";
+import VideoSection from "@/components/video/VideoSection";
 import AdUnit from "@/components/ads/AdUnit";
 import { ADSENSE_SLOTS } from "@/lib/ads/config";
 
@@ -43,11 +44,6 @@ export default async function HomePage() {
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Left promo column */}
-          <aside className="w-full lg:w-64 shrink-0">
-            <PromoLeft />
-          </aside>
-
           {/* Main content */}
           <div className="flex-1 min-w-0">
             {heroArticle && (
@@ -83,6 +79,11 @@ export default async function HomePage() {
                 <ArticleGrid articles={secondHalf} />
               </section>
             )}
+
+            {/* Últimos videos del canal de YouTube (se oculta si no hay canal configurado) */}
+            <Suspense fallback={null}>
+              <VideoSection />
+            </Suspense>
           </div>
 
           {/* Sidebar */}

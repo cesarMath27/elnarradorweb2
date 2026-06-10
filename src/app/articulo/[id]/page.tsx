@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Sidebar from "@/components/layout/Sidebar";
 import CategoryBadge from "@/components/news/CategoryBadge";
+import ReadingProgress from "@/components/ui/ReadingProgress";
 import ShareButtons from "./ShareButtons";
 import { ArticleJsonLd } from "@/components/seo/JsonLd";
 import AdUnit from "@/components/ads/AdUnit";
@@ -74,8 +75,16 @@ export default async function ArticlePage({ params }: Props) {
   const relatedNews = await getLatestNews(5);
   const related = relatedNews.filter((a) => a.id !== article.id).slice(0, 5);
 
+  // Tiempo estimado de lectura (~200 palabras por minuto)
+  const wordCount = (article.content || "")
+    .replace(/<[^>]*>/g, " ")
+    .split(/\s+/)
+    .filter(Boolean).length;
+  const readingMinutes = Math.max(1, Math.round(wordCount / 200));
+
   return (
     <>
+      <ReadingProgress />
       <ArticleJsonLd
         title={article.title}
         description={article.summary || article.title}
@@ -86,8 +95,9 @@ export default async function ArticlePage({ params }: Props) {
       />
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Article content */}
+        {/* Article content — ancho acotado para una medida de línea cómoda */}
         <article className="flex-1 min-w-0">
+          <div className="max-w-3xl mx-auto">
           {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-sm text-muted mb-6">
             <Link
@@ -138,6 +148,13 @@ export default async function ArticlePage({ params }: Props) {
                     minute: "2-digit",
                   })}
                 </time>
+                <span className="flex items-center gap-1.5">
+                  <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.8}>
+                    <circle cx="12" cy="12" r="9" />
+                    <path strokeLinecap="round" d="M12 7v5l3 2" />
+                  </svg>
+                  {readingMinutes} min de lectura
+                </span>
               </div>
               <ShareButtons title={article.title} />
             </div>
@@ -202,6 +219,7 @@ export default async function ArticlePage({ params }: Props) {
               </a>
             </div>
           )}
+          </div>
         </article>
 
         {/* Sidebar */}
