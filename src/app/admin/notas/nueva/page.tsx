@@ -1,8 +1,11 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
+import DOMPurify from "dompurify";
 import { uploadNews } from "../../actions";
 import { createClient } from "@/lib/supabase/client";
+
+const MAX_IMAGE_BYTES = 8 * 1024 * 1024; // debe coincidir con el límite del server action
 
 /* ───── categories ───── */
 const categories = [
@@ -189,14 +192,26 @@ export default function NuevaNotaPage() {
 
     /* submit */
     async function handleSubmit() {
-        setLoading(true);
         setError(null);
         setSuccess(false);
+
+        // Validar antes de enviar para dar errores inmediatos y claros
+        if (!plainContent) {
+            setError("El contenido de la nota está vacío. Escribe el artículo antes de publicar.");
+            return;
+        }
+        if (imageOption === "upload" && imageFile && imageFile.size > MAX_IMAGE_BYTES) {
+            const mb = (imageFile.size / 1024 / 1024).toFixed(1);
+            setError(`La imagen pesa ${mb} MB y el máximo es 8 MB. Comprímela e inténtalo de nuevo.`);
+            return;
+        }
+
+        setLoading(true);
 
         const formData = new FormData();
         formData.set("title", title);
         formData.set("summary", summary);
-        formData.set("content", contentHtml);
+        formData.set("content", DOMPurify.sanitize(contentHtml));
         formData.set("category_slug", categorySlug);
         formData.set("category_name", categoryName);
         formData.set("author_name", author);
@@ -210,24 +225,34 @@ export default function NuevaNotaPage() {
             formData.set("imageFile", imageFile);
         }
 
-        const result = await uploadNews(formData);
+        try {
+            const result = await uploadNews(formData);
 
-        if (result?.error) {
-            setError(result.error);
-        } else {
-            setSuccess(true);
-            setTitle("");
-            setCategorySlug("");
-            setSummary("");
-            setContentHtml("");
-            setImagePreview("");
-            setImageFile(null);
-            setImageUrl("");
-            setIsFeatured(false);
-            setIsBreaking(false);
-            if (editorRef.current) editorRef.current.innerHTML = "";
+            if (result?.error) {
+                setError(result.error);
+            } else {
+                setSuccess(true);
+                setTitle("");
+                setCategorySlug("");
+                setSummary("");
+                setContentHtml("");
+                setImagePreview("");
+                setImageFile(null);
+                setImageUrl("");
+                setIsFeatured(false);
+                setIsBreaking(false);
+                if (editorRef.current) editorRef.current.innerHTML = "";
+            }
+        } catch {
+            // Sin esto, un fallo de red o del servidor dejaba el botón en
+            // "Publicando..." para siempre y sin ningún mensaje de error.
+            setError(
+                "No se pudo publicar la nota. Revisa tu conexión a internet e inténtalo de nuevo. " +
+                "Si el problema continúa, recarga la página y vuelve a iniciar sesión."
+            );
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     }
 
     return (

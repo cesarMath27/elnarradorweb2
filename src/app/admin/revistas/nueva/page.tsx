@@ -3,6 +3,10 @@
 import { useState, useRef } from "react";
 import { uploadMagazine } from "../../actions";
 
+// Deben coincidir con los límites del server action
+const MAX_PDF_BYTES = 50 * 1024 * 1024;
+const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
+
 async function extractPdfFirstPageAsJpeg(file: File): Promise<Blob | null> {
     try {
         const pdfjsLib = await import("pdfjs-dist");
@@ -68,7 +72,6 @@ export default function NuevaRevistaPage() {
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        setLoading(true);
         setError(null);
         setSuccess(false);
 
@@ -81,19 +84,45 @@ export default function NuevaRevistaPage() {
             );
         }
 
-        const result = await uploadMagazine(formData);
-
-        if (result?.error) {
-            setError(result.error);
-        } else {
-            setSuccess(true);
-            formRef.current?.reset();
-            setCoverPreview("");
-            setPdfName("");
-            setExtractedCoverBlob(null);
-            setCoverSource("none");
+        // Validar tamaños antes de enviar para dar errores inmediatos y claros
+        const pdfFile = formData.get("pdfFile");
+        if (pdfFile instanceof File && pdfFile.size > MAX_PDF_BYTES) {
+            const mb = (pdfFile.size / 1024 / 1024).toFixed(0);
+            setError(`El PDF pesa ${mb} MB y el máximo es 50 MB. Comprímelo e inténtalo de nuevo.`);
+            return;
         }
-        setLoading(false);
+        const coverFile = formData.get("coverImage");
+        if (coverFile instanceof File && coverFile.size > MAX_IMAGE_BYTES) {
+            const mb = (coverFile.size / 1024 / 1024).toFixed(1);
+            setError(`La portada pesa ${mb} MB y el máximo es 8 MB. Comprímela e inténtalo de nuevo.`);
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const result = await uploadMagazine(formData);
+
+            if (result?.error) {
+                setError(result.error);
+            } else {
+                setSuccess(true);
+                formRef.current?.reset();
+                setCoverPreview("");
+                setPdfName("");
+                setExtractedCoverBlob(null);
+                setCoverSource("none");
+            }
+        } catch {
+            // Sin esto, un fallo de red o del servidor dejaba el botón en
+            // "Subiendo..." para siempre y sin ningún mensaje de error.
+            setError(
+                "No se pudo publicar la revista. Revisa tu conexión a internet e inténtalo de nuevo. " +
+                "Si el problema continúa, recarga la página y vuelve a iniciar sesión."
+            );
+        } finally {
+            setLoading(false);
+        }
     }
 
     return (

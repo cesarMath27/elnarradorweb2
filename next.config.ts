@@ -19,13 +19,6 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "upload.wikimedia.org" },
     ],
   },
-  // ⚡️ AÑADE ESTO PARA SOLUCIONAR EL ERROR DE DESPLIEGUE:
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
 };
 
 export default nextConfig;
