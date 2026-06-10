@@ -17,6 +17,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "i1.wp.com" },
       { protocol: "https", hostname: "i2.wp.com" },
       { protocol: "https", hostname: "upload.wikimedia.org" },
+      { protocol: "https", hostname: "i.ytimg.com" },
     ],
   },
 };

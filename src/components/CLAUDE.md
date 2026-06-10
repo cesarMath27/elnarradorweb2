@@ -21,12 +21,16 @@
 - `magazines/`
   - `MagazineShowcase.tsx`
   - `MagazineCard.tsx`
+- `video/`
+  - `VideoSection.tsx` (server: fetches latest YouTube uploads, renders nothing if no channel configured)
+  - `VideoCard.tsx` (client: thumbnail facade, loads the YouTube iframe only on click)
 - `seo/`
   - `JsonLd.tsx`
 - `ui/`
   - `SearchBar.tsx`
   - `DarkModeToggle.tsx`
   - `Skeleton.tsx`
+  - `ReadingProgress.tsx` (client: gold scroll-progress bar used on article pages)
 
 ## Key Dependencies
 - News-oriented components consume `NewsArticle` from `src/lib/supabase/queries.ts`.

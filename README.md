@@ -76,3 +76,10 @@ son salida generada — no se editan ni se commitean.
 
 La base de datos Supabase es compartida con la app móvil de El Narrador;
 ver [`docs/DATABASE.md`](./docs/DATABASE.md) antes de tocar el esquema.
+
+## Videos de YouTube en la portada
+
+La portada puede mostrar los últimos videos del canal de YouTube. Se configura
+en `src/lib/youtube/config.ts` poniendo el ID del canal (empieza con `UC...`);
+no requiere API key (usa el feed RSS público del canal). Con el ID vacío la
+sección no se muestra.

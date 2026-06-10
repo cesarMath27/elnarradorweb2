@@ -33,6 +33,14 @@
 - News uploads store images under `news/...`.
 - Magazine uploads store cover images and PDFs under `magazines/...`.
 
+## YouTube Integration
+- `src/lib/youtube/config.ts`
+  - `YOUTUBE_CHANNEL_ID` and `YOUTUBE_CHANNEL_URL` constants (no env vars, same pattern as ads config)
+  - With an empty channel id the homepage video section renders nothing
+- `src/lib/youtube/feed.ts`
+  - `getLatestVideos(limit)` reads the channel's public RSS feed (no API key)
+  - Returns `[]` on any failure so the homepage never breaks because of YouTube
+
 ## WordPress Migration Utilities
 - `src/lib/wordpress/migrate.ts`
   - Fetches categories and posts from the WordPress REST API
