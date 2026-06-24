@@ -7,6 +7,57 @@ import { createClient } from "@/lib/supabase/client";
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024; // debe coincidir con el límite del server action
 
+// Optimización de imagen en el navegador: encoge y recomprime la foto ANTES de
+// subirla, para que pese mucho menos y se publique aun con internet lento.
+const MAX_IMAGE_DIMENSION = 1600; // ancho/alto máximo en píxeles tras optimizar
+const COMPRESS_QUALITY = 0.82; // calidad JPEG (sin pérdida visible para fotos)
+
+function formatBytes(bytes: number): string {
+    if (bytes >= 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+    return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+}
+
+/**
+ * Reduce el tamaño de una imagen en el cliente usando un canvas: mantiene la
+ * proporción, limita la dimensión máxima y la recomprime como JPEG. Si algo
+ * falla (o no logra reducir el peso) devuelve el archivo original para no
+ * bloquear nunca la publicación.
+ */
+async function compressImage(file: File): Promise<File> {
+    // Los GIF (posible animación) y formatos no rasterizados se dejan igual.
+    if (!file.type.startsWith("image/") || file.type === "image/gif") {
+        return file;
+    }
+    try {
+        const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+        const scale = Math.min(1, MAX_IMAGE_DIMENSION / Math.max(bitmap.width, bitmap.height));
+        const width = Math.max(1, Math.round(bitmap.width * scale));
+        const height = Math.max(1, Math.round(bitmap.height * scale));
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return file;
+        // Fondo blanco por si la imagen trae transparencia (al pasar a JPEG).
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, width, height);
+        ctx.drawImage(bitmap, 0, 0, width, height);
+        bitmap.close();
+
+        const blob = await new Promise<Blob | null>((resolve) =>
+            canvas.toBlob((b) => resolve(b), "image/jpeg", COMPRESS_QUALITY)
+        );
+        // Si no conseguimos reducir el peso, nos quedamos con el original.
+        if (!blob || blob.size >= file.size) return file;
+
+        const newName = file.name.replace(/\.[^.]+$/, "") + ".jpg";
+        return new File([blob], newName, { type: "image/jpeg", lastModified: Date.now() });
+    } catch {
+        return file;
+    }
+}
+
 /* ───── categories ───── */
 const categories = [
     { slug: "mexico", name: "México" },
@@ -128,6 +179,8 @@ export default function NuevaNotaPage() {
     const [imagePreview, setImagePreview] = useState("");
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imageUrl, setImageUrl] = useState("");
+    const [optimizing, setOptimizing] = useState(false);
+    const [imageInfo, setImageInfo] = useState<{ original: number; optimized: number } | null>(null);
 
     /* auto-fill author from admin_users */
     useEffect(() => {
@@ -175,6 +228,22 @@ export default function NuevaNotaPage() {
         editorRef.current?.focus();
         syncContent();
     };
+
+    /* seleccionar imagen: la optimizamos en el navegador antes de subirla */
+    async function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setError(null);
+        setOptimizing(true);
+        try {
+            const optimized = await compressImage(file);
+            setImageFile(optimized);
+            setImagePreview(URL.createObjectURL(optimized));
+            setImageInfo({ original: file.size, optimized: optimized.size });
+        } finally {
+            setOptimizing(false);
+        }
+    }
 
     /* SEO */
     const seo = computeSeo({
@@ -239,6 +308,7 @@ export default function NuevaNotaPage() {
                 setImagePreview("");
                 setImageFile(null);
                 setImageUrl("");
+                setImageInfo(null);
                 setIsFeatured(false);
                 setIsBreaking(false);
                 if (editorRef.current) editorRef.current.innerHTML = "";
@@ -361,11 +431,21 @@ export default function NuevaNotaPage() {
                             <div className="flex gap-3 items-start">
                                 <div className="flex-1">
                                     {imageOption === "upload" ? (
-                                        <label className="block border-2 border-dashed border-gray-300 rounded-lg p-5 text-center hover:border-blue-400 cursor-pointer bg-gray-50 transition-colors">
-                                            <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) { setImageFile(f); setImagePreview(URL.createObjectURL(f)); } }} />
-                                            <p className="text-gray-500 text-sm">Clic para seleccionar imagen</p>
-                                            <p className="text-gray-400 text-xs mt-1">JPG, PNG, WebP</p>
-                                        </label>
+                                        <>
+                                            <label className="block border-2 border-dashed border-gray-300 rounded-lg p-5 text-center hover:border-blue-400 cursor-pointer bg-gray-50 transition-colors">
+                                                <input type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
+                                                <p className="text-gray-500 text-sm">Clic para seleccionar imagen</p>
+                                                <p className="text-gray-400 text-xs mt-1">Se optimiza sola para subir más rápido</p>
+                                            </label>
+                                            {optimizing && (
+                                                <p className="text-xs text-blue-600 mt-2">⏳ Optimizando imagen…</p>
+                                            )}
+                                            {!optimizing && imageInfo && (
+                                                <p className="text-xs text-green-600 mt-2">
+                                                    ✅ Optimizada: {formatBytes(imageInfo.original)} → {formatBytes(imageInfo.optimized)}
+                                                </p>
+                                            )}
+                                        </>
                                     ) : (
                                         <input type="url" value={imageUrl} onChange={(e) => { setImageUrl(e.target.value); setImagePreview(e.target.value); }} placeholder="https://..." className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                                     )}
@@ -436,7 +516,7 @@ export default function NuevaNotaPage() {
                             <button
                                 type="button"
                                 onClick={handleSubmit}
-                                disabled={loading || !title || !categorySlug || !summary}
+                                disabled={loading || optimizing || !title || !categorySlug || !summary}
                                 className="px-8 py-3.5 rounded-xl text-white font-semibold shadow-md transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                                 style={{ background: loading ? "#9CA3AF" : "#1C1917" }}
                             >
@@ -628,7 +708,7 @@ export default function NuevaNotaPage() {
                             </button>
                             <button
                                 onClick={handleSubmit}
-                                disabled={loading || !title || !categorySlug || !summary}
+                                disabled={loading || optimizing || !title || !categorySlug || !summary}
                                 className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white shadow-sm cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                                 style={{ background: loading ? "#9CA3AF" : "#1C1917" }}
                             >
