@@ -52,3 +52,13 @@ next-env.d.ts
 /deploy/
 /deploy-pages/
 /deploy_me/
+
+# ───── Versión PHP / Neubox ─────
+# Config con credenciales reales (se crea en el servidor a partir de config.example.php)
+/public_html/config.php
+# Archivos subidos por el panel (no versionar el contenido, sí las carpetas)
+/public_html/uploads/news/*
+/public_html/uploads/magazines/*
+!/public_html/uploads/news/.gitkeep
+!/public_html/uploads/magazines/.gitkeep
+!/public_html/uploads/.htaccess

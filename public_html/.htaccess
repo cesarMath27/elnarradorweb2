@@ -1,0 +1,76 @@
+# =====================================================================
+#  El Narrador de México — reglas Apache para Neubox (cPanel)
+#  Mantiene las MISMAS URLs que el sitio Next original (SEO intacto):
+#    /                     -> index.php
+#    /articulo/{id}        -> articulo.php?id={id}
+#    /{categoria}          -> categoria.php?cat={categoria}
+#    /revistas             -> revistas.php
+#    /revistas/{id}        -> revista.php?id={id}
+#    /buscar?q=            -> buscar.php
+#    /sitemap.xml          -> sitemap.php
+# =====================================================================
+
+Options -Indexes
+DirectoryIndex index.php
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Forzar HTTPS (descomenta si tu dominio ya tiene certificado SSL activo)
+    # RewriteCond %{HTTPS} off
+    # RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # No reescribir archivos o carpetas que existen físicamente
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Sitemap
+    RewriteRule ^sitemap\.xml$ sitemap.php [L]
+
+    # Artículos
+    RewriteRule ^articulo/([^/]+)/?$ articulo.php?id=$1 [L,QSA]
+
+    # Revistas (listado y detalle)
+    RewriteRule ^revistas/?$ revistas.php [L,QSA]
+    RewriteRule ^revistas/([^/]+)/?$ revista.php?id=$1 [L,QSA]
+
+    # Búsqueda
+    RewriteRule ^buscar/?$ buscar.php [L,QSA]
+
+    # Páginas legales / estáticas
+    RewriteRule ^privacidad/?$ privacidad.php [L]
+    RewriteRule ^terminos/?$ terminos.php [L]
+    RewriteRule ^etica/?$ etica.php [L]
+    RewriteRule ^contacto/?$ contacto.php [L]
+
+    # Categorías (un solo segmento, al final para no pisar lo anterior)
+    RewriteRule ^([a-z0-9-]+)/?$ categoria.php?cat=$1 [L,QSA]
+</IfModule>
+
+# Página de error 404 personalizada
+ErrorDocument 404 /404.php
+
+# Proteger archivos sensibles
+<FilesMatch "^(config\.php|config\.example\.php|composer\.(json|lock))$">
+    Require all denied
+</FilesMatch>
+
+# Bloquear acceso directo a cualquier carpeta de includes (raíz y admin)
+RedirectMatch 403 (?i)/includes/
+
+# Cache de estáticos
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpeg "access plus 30 days"
+    ExpiresByType image/png  "access plus 30 days"
+    ExpiresByType image/webp "access plus 30 days"
+    ExpiresByType text/css   "access plus 7 days"
+    ExpiresByType application/javascript "access plus 7 days"
+</IfModule>
+
+# Compresión
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml
+</IfModule>
