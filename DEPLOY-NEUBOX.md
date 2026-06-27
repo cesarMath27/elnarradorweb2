@@ -196,6 +196,93 @@ pierde el SEO** ni los enlaces ya indexados en Google.
 
 ---
 
+## 10. Cloudflare y cambio de DNS (cutover)
+
+Hoy el sitio **se sirve desde Cloudflare Pages** (proyecto `elnarradorweb2`,
+worker de OpenNext) y el dominio usa los **nameservers de Cloudflare**. Migrar
+a Neubox significa cambiar el "origen" del dominio de Pages a Neubox.
+
+### Recomendado: mantener Cloudflare DELANTE de Neubox
+
+No hace falta abandonar Cloudflare. Lo mejor es **dejar Cloudflare como DNS +
+CDN/SSL** y poner Neubox como servidor de origen. Así conservas CDN gratis,
+SSL, protección DDoS y caché, y el cambio es casi instantáneo y reversible.
+
+Pasos:
+
+1. **Consigue la IP de tu hosting Neubox** (cPanel → barra lateral *Información
+   general* → "IP compartida", o en el correo de bienvenida).
+2. **Quita el dominio de Cloudflare Pages** (esto es CLAVE):
+   Cloudflare → *Workers & Pages* → `elnarradorweb2` → *Custom domains* →
+   **Remove** `elnarradordemexico.com` y `www`. Mientras el dominio siga
+   "conectado" a Pages, Cloudflare ignora el registro DNS y sigue sirviendo el
+   sitio viejo.
+3. **Crea/edita los registros DNS** en Cloudflare → *DNS*:
+   - `A  @  ->  <IP de Neubox>`  (nube **naranja**, proxied)
+   - `A  www  ->  <IP de Neubox>`  (naranja)  ó `CNAME www -> elnarradordemexico.com`
+4. **SSL/TLS → Overview → modo "Full"** (no "Flexible").
+   - ⚠️ "Flexible" + la redirección a HTTPS provoca un **bucle de redirección**.
+   - Primero pide a Neubox que emita el certificado SSL del dominio (cPanel →
+     *SSL/TLS Status* → *Run AutoSSL*). Cuando esté, puedes pasar a
+     **"Full (strict)"**.
+5. **HTTPS**: deja comentada la redirección del `.htaccess` y usa
+   Cloudflare → *SSL/TLS → Edge Certificates → Always Use HTTPS*. (O al revés:
+   activa la redirección del `.htaccess` solo si el modo es Full/Full strict.)
+   No actives **HSTS** hasta confirmar que el SSL de Neubox funciona.
+6. **Caché**: crea una regla para que el panel nunca se cachee:
+   *Caching → Cache Rules* → si la URL empieza con `/admin/` → **Bypass cache**.
+   No uses "Cache Everything" sobre el HTML (la portada cambia seguido).
+7. Tras el cambio: *Caching → Configuration →* **Purge Everything** para borrar
+   el HTML viejo de Pages que quedó en la caché.
+
+> Como los registros van "proxied" (naranja), para los visitantes la IP de
+> Cloudflare no cambia: el cambio de origen es **inmediato** y si algo sale mal
+> vuelves a conectar el dominio a Pages en segundos.
+
+### Alternativa: salir de Cloudflare por completo
+
+Si prefieres no usar Cloudflare, en tu **registrador** cambia los nameservers a
+los de Neubox y crea ahí los registros A. Pierdes el CDN/SSL/protección de
+Cloudflare y la propagación tarda más (hasta 24–48 h). Solo recomendable si
+quieres simplificar y no te importa el CDN.
+
+### Qué pasa con lo demás de Cloudflare/Next
+
+- **No toques los registros `MX` ni `TXT`** (correo, SPF, verificación de
+  Google) salvo que también muevas el correo. Cambiar solo el `A` no afecta al
+  email.
+- **Variables/secrets de Cloudflare** (claves de Supabase, `MIGRATION_SECRET_KEY`)
+  dejan de usarse. Puedes borrarlas **después** de migrar los medios.
+- **R2 / KV / Workers** de OpenNext: ya no se necesitan.
+- El archivo `public/_headers` y `wrangler.toml` eran solo de Cloudflare Pages:
+  **no se suben a Neubox** (no aplican; el `.htaccess` cumple ese rol).
+- **No borres el proyecto de Pages todavía**: déjalo unos días como respaldo
+  para revertir. Cuando confirmes que Neubox va bien, elimínalo.
+
+### Prueba ANTES de cambiar el DNS (sin downtime)
+
+1. Crea un subdominio de prueba en Cloudflare: `A  new  -> <IP Neubox>` con la
+   nube **gris** (DNS only).
+2. En cPanel de Neubox agrega ese dominio/subdominio y prueba ahí todo el sitio
+   con datos reales.
+3. Cuando todo funcione, haces el cutover del dominio principal (pasos de
+   arriba). Así nunca dejas el sitio caído.
+
+### Orden recomendado del cutover (mínimo downtime)
+
+1. Sube `public_html/`, crea `config.php`, importa `schema.sql` + `data.sql`
+   completo (556 notas).
+2. **Migra los medios** con `tools/download-supabase-media.php` (antes de tocar
+   Supabase).
+3. Configura la primera contraseña (`/admin/setup.php`) y verifica el sitio en
+   el subdominio de prueba.
+4. Emite SSL en Neubox (AutoSSL).
+5. Quita el dominio de Cloudflare Pages → crea registros A a Neubox → SSL "Full"
+   → Purge Everything.
+6. Verifica `https://tudominio.com` y el panel.
+7. Días después: borra el proyecto de Pages, y **pausa/elimina Supabase** (ya
+   confirmaste que la app móvil no se usa).
+
 ## Estructura del proyecto PHP
 
 ```
