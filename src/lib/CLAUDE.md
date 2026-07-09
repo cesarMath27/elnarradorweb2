@@ -5,6 +5,9 @@
 - This is the main place to inspect before changing queries, storage behavior, migration logic, or shared content types.
 
 ## Supabase Clients
+- `src/lib/supabase/public.ts`
+  - Cookie-less anon client for public reads (news, magazines, categories)
+  - Keeps public pages static/ISR-friendly; do not add cookie or session logic here
 - `src/lib/supabase/server.ts`
   - Creates the server-side Supabase client
   - Uses cookies for SSR/session-aware requests

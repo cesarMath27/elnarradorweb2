@@ -1,11 +1,6 @@
 import type { Metadata } from "next";
 import { Newsreader, Inter } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import { WebsiteJsonLd } from "@/components/seo/JsonLd";
-import AdSenseScript from "@/components/ads/AdSenseScript";
-import SwgScript from "@/components/ads/SwgScript";
 import { ADSENSE_CLIENT_ID } from "@/lib/ads/config";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://elnarradordemexico.com";
@@ -113,32 +108,8 @@ export default function RootLayout({
       <body
         className={`${newsreader.variable} ${inter.variable} font-body antialiased bg-background text-foreground`}
       >
-        <WebsiteJsonLd />
-        <AdminLayoutGuard>
-          {children}
-        </AdminLayoutGuard>
+        {children}
       </body>
     </html>
-  );
-}
-
-// Logic to keep the main Website UI separate from the Admin Panel UI
-async function AdminLayoutGuard({ children }: { children: React.ReactNode }) {
-  const { headers } = await import("next/headers");
-  const headersList = await headers();
-  const currentPath = headersList.get("x-invoke-path") || "";
-
-  if (currentPath.startsWith("/admin")) {
-    return <>{children}</>;
-  }
-
-  return (
-    <>
-      <AdSenseScript />
-      <SwgScript />
-      <Navbar />
-      <main className="min-h-screen pt-[120px]">{children}</main>
-      <Footer />
-    </>
   );
 }
