@@ -1,4 +1,5 @@
-import { createClient } from "./server";
+import { cache } from "react";
+import { createPublicClient } from "./public";
 
 export type Magazine = {
   id: string;
@@ -15,7 +16,7 @@ export type Magazine = {
 };
 
 export async function getMagazines(limit = 20) {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("magazines")
     .select("*")
@@ -23,11 +24,13 @@ export async function getMagazines(limit = 20) {
     .limit(limit);
 
   if (error) throw error;
-  return data as Magazine[];
+  return data as unknown as Magazine[];
 }
 
-export async function getMagazineById(id: string) {
-  const supabase = await createClient();
+// cache() deduplica la lectura cuando generateMetadata y la página piden
+// la misma revista dentro del mismo render.
+export const getMagazineById = cache(async (id: string) => {
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("magazines")
     .select("*")
@@ -35,11 +38,11 @@ export async function getMagazineById(id: string) {
     .single();
 
   if (error) throw error;
-  return data as Magazine;
-}
+  return data as unknown as Magazine;
+});
 
 export async function getFeaturedMagazines() {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("magazines")
     .select("*")
@@ -48,5 +51,5 @@ export async function getFeaturedMagazines() {
     .limit(3);
 
   if (error) throw error;
-  return data as Magazine[];
+  return data as unknown as Magazine[];
 }

@@ -11,3 +11,9 @@ directory = ".open-next/assets"
 
 [vars]
 NEXT_PUBLIC_SUPABASE_URL = "https://fewwvcrfhdgnpfjyadev.supabase.co"
+
+# Cache incremental de OpenNext (ISR). Crear el bucket una sola vez con:
+#   npx wrangler r2 bucket create elnarradorweb2-inc-cache
+[[r2_buckets]]
+binding = "NEXT_INC_CACHE_R2_BUCKET"
+bucket_name = "elnarradorweb2-inc-cache"

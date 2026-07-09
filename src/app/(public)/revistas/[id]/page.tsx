@@ -5,6 +5,13 @@ import ShareButtonsMagazine from "./ShareButtonsMagazine";
 
 export const revalidate = 300;
 
+// Sin rutas pre-generadas en build: cada pagina se renderiza en la primera
+// visita y queda cacheada (ISR bajo demanda). Sin esto, la ruta se sirve
+// dinamica y se re-renderiza en cada request.
+export function generateStaticParams() {
+  return [];
+}
+
 type Props = {
   params: Promise<{ id: string }>;
 };

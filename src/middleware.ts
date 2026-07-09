@@ -39,8 +39,9 @@ export async function middleware(request: NextRequest) {
     return supabaseResponse;
 }
 
+// Solo corre en /admin: es el único lugar que necesita refrescar la sesión
+// de Supabase y leer x-invoke-path. Correrlo en todo el sitio creaba un
+// cliente Supabase y validaba el JWT en cada request pública (CPU de más).
 export const config = {
-    matcher: [
-        "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-    ],
+    matcher: ["/admin/:path*"],
 };

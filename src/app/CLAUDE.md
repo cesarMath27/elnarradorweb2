@@ -71,10 +71,10 @@
 - Admin actions call `revalidatePath(...)` after writes.
 
 ## Auth And Guard Behavior
-- `src/app/layout.tsx` reads `x-invoke-path` to decide whether to render public navbar/footer.
+- `src/app/(public)/layout.tsx` renders the public navbar/footer; the root layout is chrome-free and static-friendly (no `headers()`/`cookies()`).
 - `src/app/admin/layout.tsx` protects admin routes by checking the current Supabase user.
 - `src/app/admin/layout.tsx` optionally restricts access to `ADMIN_EMAIL`.
-- `src/middleware.ts` refreshes the session and makes the current path visible to server components.
+- `src/middleware.ts` runs only on `/admin`: it refreshes the session and exposes the current path via `x-invoke-path` for the admin layout.
 
 ## Notes On Dynamic Routes
 - `src/app/[category]/page.tsx` maps category slugs to UI labels and metadata.

@@ -15,6 +15,7 @@
 - `src/lib/`
   - Supabase clients, queries, typed content access, WordPress migration helpers
 - `src/middleware.ts`
+  - Runs only on `/admin` routes
   - Propagates pathname via `x-invoke-path`
   - Refreshes Supabase auth session
 
@@ -26,7 +27,7 @@
 - Prefer alias imports over long relative imports when working across folders.
 
 ## Cross-Cutting Concerns
-- Public and admin routes share the same app and middleware.
+- Public routes live under `src/app/(public)/` (route group with the public chrome); middleware only runs on `/admin`.
 - Auth state is coordinated through Supabase SSR helpers.
 - Metadata and SEO behavior are defined inside route files and shared helpers.
 - Some routes are server-rendered and some admin screens contain client-side Supabase usage.

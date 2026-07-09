@@ -43,7 +43,7 @@
 - `src/app/`: routes, layouts, metadata, route handlers, server actions
 - `src/components/`: reusable public UI and SEO helpers
 - `src/lib/`: Supabase access and WordPress migration logic
-- `src/middleware.ts`: request header propagation and auth session refresh
+- `src/middleware.ts`: admin-only header propagation and auth session refresh (matcher limited to `/admin`)
 - `public/`: static assets and hosting headers
 
 ## Environment Variables Actually Used
@@ -58,7 +58,7 @@
 Do not copy secrets into documentation. Only document names and purpose.
 
 ## Monetization (Google AdSense)
-- The AdSense loader script lives in `src/components/ads/AdSenseScript.tsx` and is mounted only on public pages from `src/app/layout.tsx`.
+- The AdSense loader script lives in `src/components/ads/AdSenseScript.tsx` and is mounted only on public pages from `src/app/(public)/layout.tsx`.
 - Shared config (publisher ID and manual ad slot IDs) lives in `src/lib/ads/config.ts`. It uses no environment variables, so it works in production with no extra setup.
 - Reusable manual ad blocks use `src/components/ads/AdUnit.tsx`. An `<AdUnit />` with an empty slot renders nothing, so no empty ad boxes appear and Auto Ads keep working.
 - `public/ads.txt` authorizes Google to serve ads for this publisher.
@@ -86,9 +86,10 @@ Do not copy secrets into documentation. Only document names and purpose.
 - Public article and magazine reads are handled through `src/lib/supabase/queries.ts` and `src/lib/supabase/magazines.ts`.
 
 ## Cross-Cutting Runtime Behavior
-- `src/middleware.ts` forwards the current pathname through `x-invoke-path`.
-- `src/middleware.ts` also refreshes the Supabase auth session on each matching request.
-- `src/app/layout.tsx` uses `x-invoke-path` to avoid rendering the public navbar/footer for `/admin` routes.
+- `src/middleware.ts` only runs on `/admin` routes: it forwards the pathname through `x-invoke-path` and refreshes the Supabase auth session there.
+- Public routes live in the `src/app/(public)/` route group, whose layout renders the navbar/footer/ads chrome. The root layout has no dynamic APIs (`headers()`/`cookies()`) so public pages render statically with ISR (`revalidate = 300`).
+- Public data reads use the cookie-less anon client in `src/lib/supabase/public.ts`; the cookie-aware client in `src/lib/supabase/server.ts` is for admin/auth flows only.
+- OpenNext stores the ISR cache in R2 (binding `NEXT_INC_CACHE_R2_BUCKET`) with cache interception enabled to keep worker CPU time low. The bucket must exist before deploying: `npx wrangler r2 bucket create elnarradorweb2-inc-cache`.
 - `src/app/admin/layout.tsx` enforces auth and optional `ADMIN_EMAIL` matching.
 
 ## Important Warnings

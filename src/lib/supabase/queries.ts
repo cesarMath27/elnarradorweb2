@@ -1,4 +1,5 @@
-import { createClient } from "./server";
+import { cache } from "react";
+import { createPublicClient } from "./public";
 
 export type Author = {
   id: string;
@@ -14,7 +15,9 @@ export type NewsArticle = {
   source: "supabase" | "wordpress";
   title: string;
   summary: string;
-  content: string;
+  // Solo getNewsById lo incluye; las queries de listado lo omiten porque el
+  // HTML completo de cada nota pesa mucho y parsearlo consume CPU de más.
+  content?: string;
   image_url: string;
   category_slug: string;
   category_name: string;
@@ -29,59 +32,65 @@ export type NewsArticle = {
   authors?: Author[];
 };
 
+// Columnas para vistas de listado: todo menos `content`.
+const LIST_COLUMNS =
+  "id, source, title, summary, image_url, category_slug, category_name, author_name, tags, published_at, created_at, view_count, is_featured, is_breaking, source_url";
+
 export async function getLatestNews(limit = 20, offset = 0) {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("news")
-    .select("*")
+    .select(LIST_COLUMNS)
     .order("published_at", { ascending: false })
     .range(offset, offset + limit - 1);
 
   if (error) throw error;
-  return data as NewsArticle[];
+  return data as unknown as NewsArticle[];
 }
 
 export async function getFeaturedNews() {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("news")
-    .select("*")
+    .select(LIST_COLUMNS)
     .eq("is_featured", true)
     .order("published_at", { ascending: false })
     .limit(5);
 
   if (error) throw error;
-  return data as NewsArticle[];
+  return data as unknown as NewsArticle[];
 }
 
 export async function getBreakingNews() {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("news")
-    .select("*")
+    .select(LIST_COLUMNS)
     .eq("is_breaking", true)
     .order("published_at", { ascending: false })
     .limit(3);
 
   if (error) throw error;
-  return data as NewsArticle[];
+  return data as unknown as NewsArticle[];
 }
 
 export async function getNewsByCategory(categorySlug: string, limit = 20) {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("news")
-    .select("*")
+    .select(LIST_COLUMNS)
     .eq("category_slug", categorySlug)
     .order("published_at", { ascending: false })
     .limit(limit);
 
   if (error) throw error;
-  return data as NewsArticle[];
+  return data as unknown as NewsArticle[];
 }
 
-export async function getNewsById(id: string) {
-  const supabase = await createClient();
+// cache() deduplica la lectura cuando generateMetadata y la página piden
+// el mismo artículo dentro del mismo render.
+export const getNewsById = cache(async (id: string) => {
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("news")
     .select("*")
@@ -89,24 +98,24 @@ export async function getNewsById(id: string) {
     .single();
 
   if (error) throw error;
-  return data as NewsArticle;
-}
+  return data as unknown as NewsArticle;
+});
 
 export async function searchNews(query: string, limit = 20) {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("news")
-    .select("*")
+    .select(LIST_COLUMNS)
     .or(`title.ilike.%${query}%,summary.ilike.%${query}%,content.ilike.%${query}%`)
     .order("published_at", { ascending: false })
     .limit(limit);
 
   if (error) throw error;
-  return data as NewsArticle[];
+  return data as unknown as NewsArticle[];
 }
 
 export async function getCategories() {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("categories")
     .select("*")
@@ -117,19 +126,19 @@ export async function getCategories() {
 }
 
 export async function getMostViewed(limit = 5) {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("news")
-    .select("*")
+    .select(LIST_COLUMNS)
     .order("view_count", { ascending: false })
     .limit(limit);
 
   if (error) throw error;
-  return data as NewsArticle[];
+  return data as unknown as NewsArticle[];
 }
 
 export async function incrementViewCount(id: string) {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { error } = await supabase.rpc("increment_view_count", {
     news_id: id,
   });
@@ -145,18 +154,18 @@ export async function incrementViewCount(id: string) {
 /* ───── Authors ───── */
 
 export async function getAuthors() {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("authors")
     .select("*")
     .order("name", { ascending: true });
 
   if (error) throw error;
-  return data as Author[];
+  return data as unknown as Author[];
 }
 
 export async function getAuthorsByNewsId(newsId: string) {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("news_authors")
     .select("author_id, authors(*)")
